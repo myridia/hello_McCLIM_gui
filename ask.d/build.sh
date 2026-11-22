@@ -8,10 +8,10 @@ set -e
 enter
 
 rm -rf bin dist/hello_McCLIM_gui
-mkdir -p bin dist
+mkdir -p bin dist/hello_McCLIM_gui
 
 sbcl --non-interactive \
-  --eval '(setf cl-user::*auto-start* nil)' \
+  --eval '(defparameter cl-user::*auto-start* nil)' \
   --load main.lisp \
   --eval '(sb-ext:save-lisp-and-die "bin/hello_McCLIM_gui" :toplevel (function clim-user:main) :executable t :compression t)'
 

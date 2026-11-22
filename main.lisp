@@ -18,7 +18,7 @@
             :height 100)
    (quit-button :push-button
                 :label "Quit"
-                :callback (lambda (&rest args)
+                :activate-callback (lambda (&rest args)
                             (declare (ignore args))
                             (frame-exit *application-frame*))))
   (:layouts
@@ -30,6 +30,8 @@
 
 (defun main ()
   (run-frame-top-level (make-application-frame 'hello-frame)))
+
+(export 'main)
 
 (when cl-user::*auto-start*
   (main))
