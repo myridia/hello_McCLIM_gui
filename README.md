@@ -27,6 +27,13 @@ sbcl --script main.lisp
 
 ## Build output
 
-Task 2 creates `dist/hello_McCLIM_gui/` with the executable. The SBCL executable is self-contained — McCLIM and the runtime are saved into the image, so no library directory is needed. Copy the executable to another machine with the same OS and CPU architecture.
+Task 2 creates `dist/hello_McCLIM_gui/` — but unlike Racket's distribution, this directory contains a single file: the ~22 MB SBCL executable. McCLIM and the Lisp runtime are saved into the image, so there is no `lib/` tree and no Quicklisp or SBCL install needed on the target machine.
+
+| Project | Distribution | Size |
+|---------|--------------|------|
+| Racket | `bin/` executable + `lib/` runtime libraries | ~68 MB |
+| McCLIM / SBCL | one self-contained executable | ~22 MB |
+
+Copy `dist/hello_McCLIM_gui/` (or just the executable inside it) to another machine with the same OS and CPU architecture and run it there.
 
 Task 1 installs SBCL when missing, bootstraps Quicklisp into `~/quicklisp`, and loads McCLIM through Quicklisp. On Windows, use a POSIX shell such as Git Bash/MSYS/Cygwin.
