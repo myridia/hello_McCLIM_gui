@@ -22,7 +22,6 @@ jobs:
           sbcl --non-interactive \
             --load /tmp/quicklisp.lisp \
             --eval '(quicklisp-quickstart:install)' \
-            --eval '(ql:add-to-init-file)' \
             --eval '(sb-ext:exit)'
           sbcl --non-interactive \
             --load "$HOME/quicklisp/setup.lisp" \

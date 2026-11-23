@@ -45,7 +45,7 @@ Built executable with no window:
 
 ## Workflows
 - `.github/workflows/control.yml` — single build gate copied from couchy; push to `main`, any tag, and manual dispatch. `linux` and `pages` are enabled; the other build lines are commented out.
-- `.github/workflows/linux.yml` — `workflow_call` + `workflow_dispatch`. Install step installs SBCL/curl and bootstraps Quicklisp with McCLIM (same steps as `ask.d/setup.sh`), then builds via `ask.d/build.sh`, smoke-tests the `-nw` output, and uploads `hello_McCLIM_gui_linux` to the release.
+- `.github/workflows/linux.yml` — `workflow_call` + `workflow_dispatch`. Install step installs SBCL/curl and bootstraps Quicklisp with McCLIM, then builds via `ask.d/build.sh`, smoke-tests the `-nw` output, and uploads `hello_McCLIM_gui_linux` to the release. It deliberately omits `ql:add-to-init-file` — that call prompts for Enter and fails on CI's closed stdin; `main.lisp` loads `~/quicklisp/setup.lisp` itself.
 - `.github/workflows/pages.yml` — `workflow_call` + `workflow_dispatch`, deploys `pages/public` to GitHub Pages via `configure-pages` / `upload-pages-artifact` / `deploy-pages`. The `myridia` guard lives only in `control.yml`.
 
 ## Conventions
