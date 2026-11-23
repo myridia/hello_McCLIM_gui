@@ -35,6 +35,13 @@ Direct command:
 sbcl --script main.lisp
 ```
 
+Built executable with no window:
+```sh
+./dist/hello_McCLIM_gui/hello_McCLIM_gui -nw
+```
+
+`-nw`, `--nw`, and `--no-window` print `Hello, world!` to stdout instead of opening the McCLIM window.
+
 ## Conventions
 - Keep the README logo as its first line.
 - No code comments unless asked.

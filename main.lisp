@@ -28,8 +28,24 @@
   (declare (ignore frame))
   (format stream "Hello, world!"))
 
+(defun command-line-args ()
+  (rest sb-ext:*posix-argv*))
+
+(defun no-window-p ()
+  (some (lambda (arg)
+          (or (string= arg "-nw")
+              (string= arg "--nw")
+              (string= arg "--no-window")))
+        (command-line-args)))
+
+(defun command-line-main ()
+  (format t "Hello, world!~%")
+  (finish-output))
+
 (defun main ()
-  (run-frame-top-level (make-application-frame 'hello-frame)))
+  (if (no-window-p)
+      (command-line-main)
+      (run-frame-top-level (make-application-frame 'hello-frame))))
 
 (export 'main)
 

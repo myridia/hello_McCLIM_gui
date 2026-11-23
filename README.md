@@ -12,6 +12,15 @@ The window shows "Hello, world!" with a **Quit** button.
 sbcl --script main.lisp
 ```
 
+## No-window mode
+
+```sh
+./dist/hello_McCLIM_gui/hello_McCLIM_gui -nw
+```
+
+`-nw`, `--nw`, and `--no-window` skip the GUI and print `Hello, world!` to the terminal.
+Without a flag, the executable opens the McCLIM window.
+
 ## Task Runner
 
 ```sh
