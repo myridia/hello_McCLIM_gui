@@ -35,6 +35,17 @@ Direct command:
 sbcl --script main.lisp
 ```
 
+Built executable with no window:
+```sh
+./dist/hello_McCLIM_gui/hello_McCLIM_gui -nw
+```
+
+`-nw`, `--nw`, and `--no-window` print `Hello, world!` to stdout instead of opening the McCLIM window.
+
+## Workflows
+- `.github/workflows/control.yml` — single build gate copied from couchy; push to `main`, any tag, and manual dispatch. Only `linux` is enabled; the other build lines are commented out.
+- `.github/workflows/linux.yml` — `workflow_call` + `workflow_dispatch`. Install step installs SBCL/curl and bootstraps Quicklisp with McCLIM (same steps as `ask.d/setup.sh`), then builds via `ask.d/build.sh`, smoke-tests the `-nw` output, and uploads `hello_McCLIM_gui_linux` to the release. The `myridia` guard lives only in `control.yml`.
+
 ## Conventions
 - Keep the README logo as its first line.
 - No code comments unless asked.

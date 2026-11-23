@@ -1,0 +1,55 @@
+name: Linux
+on:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+  packages: none
+
+jobs:
+  Build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Install
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y sbcl curl
+          curl -fsSL https://beta.quicklisp.org/quicklisp.lisp -o /tmp/quicklisp.lisp
+          sbcl --non-interactive \
+            --load /tmp/quicklisp.lisp \
+            --eval '(quicklisp-quickstart:install)' \
+            --eval '(ql:add-to-init-file)' \
+            --eval '(sb-ext:exit)'
+          sbcl --non-interactive \
+            --load "$HOME/quicklisp/setup.lisp" \
+            --eval '(ql:quickload :mcclim)' \
+            --eval '(sb-ext:exit)'
+          sbcl --version
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile
+        run: |
+          ./ask.d/build.sh
+
+      - name: Smoke test
+        run: |
+          ./dist/hello_McCLIM_gui/hello_McCLIM_gui -nw
+
+      - name: Rename
+        run: |
+          cp dist/hello_McCLIM_gui/hello_McCLIM_gui dist/hello_McCLIM_gui/hello_McCLIM_gui_linux
+
+      - name: Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: 'dist/hello_McCLIM_gui/hello_McCLIM_gui_linux'
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
