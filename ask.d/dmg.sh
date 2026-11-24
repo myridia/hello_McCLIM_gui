@@ -41,6 +41,13 @@ dmg="dist/mcclim/$name.dmg"
 rm -rf "$app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 ditto "$exe" "$app/Contents/MacOS/mcclim"
+cat > "$app/Contents/MacOS/mcclim-launcher" <<'EOF'
+#!/bin/sh
+dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+DYLD_LIBRARY_PATH="$dir${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+export DYLD_LIBRARY_PATH
+exec "$dir/mcclim" "$@"
+EOF
 exe_dir=${exe%/*}
 [ "$exe_dir" = "$exe" ] && exe_dir=.
 for zstd in "$exe_dir"/libzstd*.dylib; do
@@ -60,7 +67,7 @@ cat > "$app/Contents/Info.plist" <<EOF
   <key>CFBundleIdentifier</key>
   <string>$identifier</string>
   <key>CFBundleExecutable</key>
-  <string>mcclim</string>
+  <string>mcclim-launcher</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleSignature</key>
@@ -79,9 +86,10 @@ cat > "$app/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
-chmod 755 "$app/Contents/MacOS/mcclim"
+chmod 755 "$app/Contents/MacOS/mcclim" "$app/Contents/MacOS/mcclim-launcher"
 plutil -lint "$app/Contents/Info.plist"
 test -x "$app/Contents/MacOS/mcclim"
+test -x "$app/Contents/MacOS/mcclim-launcher"
 hdiutil create -volname "mcclim_macos" -srcfolder "$app" -ov -format UDZO "$dmg"
 hdiutil verify "$dmg"
 
@@ -90,6 +98,7 @@ trap 'hdiutil detach "$mountpoint" >/dev/null 2>&1 || true; rmdir "$mountpoint" 
 hdiutil attach -nobrowse -noautoopen -mountpoint "$mountpoint" "$dmg"
 plutil -lint "$mountpoint/$app/Contents/Info.plist"
 test -x "$mountpoint/$app/Contents/MacOS/mcclim"
+test -x "$mountpoint/$app/Contents/MacOS/mcclim-launcher"
 hdiutil detach "$mountpoint"
 rmdir "$mountpoint"
 trap - EXIT
