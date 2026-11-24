@@ -29,14 +29,12 @@ jobs:
       - name: Compile
         run: |
           echo "Compile"
-          tree 
-          #cd mcclim
-          #mkdir -p bin dist/mcclim
-          #sbcl --non-interactive \
-          #--eval '(defparameter cl-user::*auto-start* nil)' \
-          #--load main.lisp \
-          #--eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
-          #exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
+          mkdir -p bin dist/mcclim
+          sbcl --non-interactive \
+          --eval '(defparameter cl-user::*auto-start* nil)' \
+          --load main.lisp \
+          --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
+          exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
 
       - name: Test
         run: |
