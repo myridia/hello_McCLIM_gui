@@ -20,24 +20,25 @@ permissions:
   id-token: write
 
 jobs:
+  if: github.repository_owner == 'myridia'  
   #linux:
   #  if: github.repository_owner == 'myridia'
   #  uses: ./.github/workflows/linux.yml
   #  secrets: inherit
   #  with:
   #    tag: ${{ inputs.tag }}
-  debian:
-    if: github.repository_owner == 'myridia'
-    uses: ./.github/workflows/debian.yml
-    secrets: inherit
-    with:
-      tag: ${{ inputs.tag }}
-  #windows:
+  #debian:
   #  if: github.repository_owner == 'myridia'
-  #  uses: ./.github/workflows/windows.yml
+  #  uses: ./.github/workflows/debian.yml
   #  secrets: inherit
   #  with:
   #    tag: ${{ inputs.tag }}
+  windows:
+    if: github.repository_owner == 'myridia'
+    uses: ./.github/workflows/windows.yml
+    secrets: inherit
+    with:
+      tag: ${{ inputs.tag }}
   #macos:
   #  if: github.repository_owner == 'myridia'
   #  uses: ./.github/workflows/macos.yml
