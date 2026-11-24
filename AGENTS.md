@@ -45,7 +45,7 @@ Built executable with no window:
 `-nw`, `--nw`, and `--no-window` print `Hello, world!` to stdout instead of opening the McCLIM window.
 
 ## Workflows
-Release steps publish only on a tag push or when a `tag` input is supplied (via `control.yml` dispatch or direct dispatch). Branch pushes build without creating a release; `github.ref` is no longer passed as the release tag.
+Release steps publish only on a tag push or when a `tag` input is supplied (via `control.yml` dispatch or direct dispatch); `control.yml` defaults the dispatch `tag` to `v0.1.0`. Branch pushes build without creating a release; `github.ref` is no longer passed as the release tag.
 - `.github/workflows/control.yml` — single build gate copied from couchy; push to `main`, any tag, and manual dispatch. `linux`, `debian`, `windows`, `macos`, `macos_intel`, and `freebsd` are enabled; `msix` and `pages` are commented out.
 - `.github/workflows/linux.yml` — `workflow_call` + `workflow_dispatch`. Install step installs SBCL/curl and bootstraps Quicklisp with McCLIM, then builds inline, smoke-tests the `-nw` output, uploads the single `mcclim_linux` binary to the release with `DejaVuSans.ttf` embedded in the image. It deliberately omits `ql:add-to-init-file` — that call prompts for Enter and fails on CI's closed stdin; `main.lisp` loads `~/quicklisp/setup.lisp` itself. `ask.d/setup.sh` writes the same init block to `~/.sbclrc` itself instead of calling the prompt.
 - `.github/workflows/debian.yml` — `workflow_call` + `workflow_dispatch`. Builds the executable, copies it into `make_deb/src/`, runs `dpkg-buildpackage -us -uc -b`, and uploads `mcclim_0.1.0-1_amd64.deb`.
