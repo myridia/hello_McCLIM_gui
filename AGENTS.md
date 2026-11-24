@@ -11,7 +11,8 @@ The window shows “Hello, world!” with a **Quit** button.
 - Quicklisp
 
 ## Structure
-- `main.lisp` — GUI entry point; loads Quicklisp/McCLIM, defines the application frame, and runs it
+- `main.lisp` — GUI entry point; loads Quicklisp/McCLIM, selects the CLX or SDL2 backend, defines the application frame, and runs it
+- `sdl2.sh` — helper used by setup and the Windows workflow: pins McCLIM 1.0.0 in `~/quicklisp/local-projects` and downloads `SDL2.dll` into `vendor/sdl2/` on Windows
 - `ask.sh` — task runner menu
 - `ask.d/lib.sh` — shared task helpers
 - `ask.d/setup.sh` — task 1: check/install SBCL, bootstrap Quicklisp, load McCLIM
@@ -21,7 +22,7 @@ The window shows “Hello, world!” with a **Quit** button.
 - `AGENTS.md` — this project guide
 - `LICENSE` — project license
 - `make_deb/` — Debian packaging (`dpkg-buildpackage`) for the prebuilt executable; `make_deb/src/mcclim` is copied in by the Debian workflow; `make_deb/README.md` documents the staging/build mechanics
-- `.gitignore` — Common Lisp and build-output ignore rules
+- `.gitignore` — Common Lisp, build-output, and `vendor/` ignore rules
 - `mcclim.svg` — README logo; also used by the project page
 - `pages/public/` — GitHub Pages site (`index.html`, `style.css`, `img/mcclim.svg`), deployed by `pages.yml`
 
@@ -30,7 +31,9 @@ The window shows “Hello, world!” with a **Quit** button.
 ./ask.sh
 ```
 
-Task 1 checks for `sbcl`, a downloader (`curl`/`wget`), and Quicklisp, installs SBCL when missing (`apt-get`, `dnf`, or `pacman` on Linux; Homebrew on macOS; Chocolatey, Scoop, or winget under a POSIX shell on Windows), bootstraps Quicklisp into `~/quicklisp`, and loads McCLIM. Task 2 reads `DejaVuSans.ttf` into a byte vector at build time, saves that vector with the executable via `sb-ext:save-lisp-and-die` in `bin/`, and copies the executable to `dist/mcclim/`. `main.lisp` writes the embedded bytes to `~/.cache/mcclim/DejaVuSans.ttf` and repoints `*families/faces*` there, so the target machine needs no font file. Task 3 runs `main.lisp` directly.
+Task 1 checks for `sbcl`, a downloader (`curl`/`wget`), and Quicklisp, installs SBCL when missing (`apt-get`, `dnf`, or `pacman` on Linux; Homebrew on macOS; Chocolatey, Scoop, or winget under a POSIX shell on Windows), bootstraps Quicklisp into `~/quicklisp`, runs `sdl2.sh`, and loads McCLIM. Task 2 reads `DejaVuSans.ttf` into a byte vector at build time, saves that vector with the executable via `sb-ext:save-lisp-and-die` in `bin/`, and copies the executable (and `SDL2.dll` on Windows) to `dist/mcclim/`. `main.lisp` writes the embedded bytes to `~/.cache/mcclim/DejaVuSans.ttf` and repoints `*families/faces*` there, so the target machine needs no font file. Task 3 runs `main.lisp` directly.
+
+On Windows `main.lisp` defaults to McCLIM's SDL2 backend (`:sdl2-soft`) and needs `SDL2.dll` beside the executable or on `PATH`; other platforms keep the CLX backend. Set `MCCLIM_BACKEND=sdl2` or `MCCLIM_BACKEND=clx` to override the default. The Windows image uses `:compression nil` because Chocolatey's SBCL has no zstd support; other platforms keep `:compression t`.
 
 Direct command:
 ```sh
@@ -51,7 +54,7 @@ Release steps publish on every `control.yml` run: manual input wins, then a push
 - `.github/workflows/debian.yml` — `workflow_call` + `workflow_dispatch`. Builds the executable, copies it into `make_deb/src/`, runs `dpkg-buildpackage -us -uc -b`, and uploads `mcclim_0.1.0-1_amd64.deb`.
 - `.github/workflows/macos.yml` — `workflow_call` + `workflow_dispatch`. Builds on `macos-15`, uploads `mcclim_macos`.
 - `.github/workflows/macos_intel.yml` — `workflow_call` + `workflow_dispatch`. Builds on `macos-15-intel`, uploads `mcclim_macos_intel`.
-- `.github/workflows/windows.yml` — `workflow_call` + `workflow_dispatch`. Installs SBCL with Chocolatey, builds in Git Bash, uploads `mcclim_windows.exe`.
+- `.github/workflows/windows.yml` — `workflow_call` + `workflow_dispatch`. Installs SBCL with Chocolatey, pins McCLIM 1.0.0 via `sdl2.sh`, builds in Git Bash with `:compression nil`, and uploads `mcclim_windows.exe` plus `SDL2.dll`.
 - `.github/workflows/freebsd.yml` — `workflow_call` + `workflow_dispatch`. Builds in a FreeBSD VM, uploads `mcclim_freebsd`.
 - `.github/workflows/pages.yml` — `workflow_call` + `workflow_dispatch`, deploys `pages/public` to GitHub Pages via `configure-pages` / `upload-pages-artifact` / `deploy-pages`. The `myridia` guard lives only in `control.yml`.
 

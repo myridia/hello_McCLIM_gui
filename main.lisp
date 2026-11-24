@@ -6,7 +6,27 @@
       (load setup)
       (error "Quicklisp not found. Run task 1 in ask.sh.")))
 
+(when (fboundp 'ql:register-local-projects)
+  (ql:register-local-projects))
+
+(defvar cl-user::*backend*
+  (let ((requested (sb-ext:posix-getenv "MCCLIM_BACKEND")))
+    (cond ((and requested (plusp (length requested))
+                (string-equal requested "sdl2")) :sdl2)
+          ((and requested (plusp (length requested))
+                (string-equal requested "clx")) :clx)
+          ((and requested (plusp (length requested)))
+           (error "Unknown MCCLIM_BACKEND ~s (use sdl2 or clx)" requested))
+          ((or (member :win32 *features*)
+               (member :mingw32 *features*)
+               (member :cygwin *features*)) :sdl2)
+          (t :clx))))
+
 (ql:quickload :mcclim)
+
+(when (eq cl-user::*backend* :sdl2)
+  (ql:quickload :mcclim-sdl2)
+  (setf clim:*default-server-path* '(:sdl2-soft)))
 
 (in-package :clim-user)
 

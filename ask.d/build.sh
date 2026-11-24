@@ -19,4 +19,7 @@ sbcl --non-interactive \
 exe=bin/mcclim
 [ -e "$exe.exe" ] && exe="$exe.exe"
 cp "$exe" "dist/mcclim/${exe##*/}"
+if [ -f vendor/sdl2/SDL2.dll ]; then
+  cp vendor/sdl2/SDL2.dll dist/mcclim/SDL2.dll
+fi
 printf "ok    dist/mcclim\n"
