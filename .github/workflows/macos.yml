@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   Build:
-    runs-on: macos-15
+    runs-on: macos-27
 
     steps:
       - name: Install
