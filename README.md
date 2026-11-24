@@ -29,7 +29,7 @@ The Windows build uses McCLIM 1.0.0's SDL2 backend, so it opens a native window 
 2. Put the two files in the same folder.
 3. Run `.\mcclim_windows.exe` from PowerShell or Cmd.
 
-Keep `SDL2.dll` next to the executable (or on `PATH`); Windows uses SDL 2.32.8 x64. The `-nw` flag still works without SDL2. The Windows build first tries Chocolatey for SBCL, then falls back to the official SBCL MSI if the Chocolatey feed is unavailable. The Windows image is saved with `:compression nil` because the Windows SBCL has no zstd support; other platforms use `:compression t`.
+Keep `SDL2.dll` next to the executable (or on `PATH`); Windows uses SDL 2.32.8 x64. The `-nw` flag still works without SDL2. The Windows build first tries Chocolatey for SBCL, then falls back to the official SBCL MSI if the Chocolatey feed is unavailable. The Windows image is saved with `:compression nil` because the Windows SBCL has no zstd support; other platforms use `:compression t`. The saved core cannot retain cl-sdl2's foreign user-event counter, so `main()` allocates a fresh one at startup before opening a port.
 
 ## macOS DMG
 
@@ -40,7 +40,7 @@ Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dm
 3. Eject the disk image.
 4. Open McCLIM from `/Applications`.
 
-The standalone binaries and the `.app` inside the DMG are ad-hoc signed with `codesign --sign -`. This satisfies Apple silicon's requirement that every executable has at least an ad-hoc signature. It is not a Developer ID signature and is not notarized, so Gatekeeper may still warn on a downloaded copy. Ad-hoc signatures are checked with `codesign --verify` without `--strict`, which requires a Developer ID secure timestamp.
+The SBCL saved executable appends the Lisp image after the Mach-O `__LINKEDIT` segment. Apple requires `__LINKEDIT` to be the last data in a signable Mach-O, so this single-file image cannot be codesigned. The binaries and DMG are therefore unsigned; Gatekeeper may warn on a downloaded copy. A signed/notarized release would need a different layout, such as a signable launcher plus the SBCL runtime and core as separate resources.
 
 If macOS blocks the app, run:
 
