@@ -34,7 +34,8 @@ jobs:
           --load /tmp/quicklisp.lisp \
           --eval '(quicklisp-quickstart:install)' \
           --eval '(sb-ext:exit)'
-          exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
+          tree 
+          #exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
 
       - name: Test
         run: |
