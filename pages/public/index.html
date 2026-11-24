@@ -3,40 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>hello_McCLIM_gui — Common Lisp hello world</title>
+  <title>mcclim — Common Lisp hello world</title>
   <meta name="description" content="A minimal Common Lisp GUI built with McCLIM and SBCL. One small window with Hello, world! and a Quit button, plus a headless mode for scripts.">
-  <link rel="icon" type="image/svg+xml" href="img/hello_McCLIM_gui.svg">
+  <link rel="icon" type="image/svg+xml" href="img/mcclim.svg">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="site-header">
     <a class="brand" href="./">
-      <img src="img/hello_McCLIM_gui.svg" alt="" width="36" height="36">
-      <span>hello_McCLIM_gui</span>
+      <img src="img/mcclim.svg" alt="" width="36" height="36">
+      <span>mcclim</span>
     </a>
     <nav>
       <a href="#features">Features</a>
       <a href="#run">Run</a>
       <a href="#start">Quick start</a>
-      <a href="https://github.com/veto8/hello_McCLIM_gui">GitHub</a>
+      <a href="https://github.com/veto8/mcclim">GitHub</a>
     </nav>
   </header>
 
   <main>
     <section class="hero">
-      <img class="hero-icon" src="img/hello_McCLIM_gui.svg" alt="hello_McCLIM_gui icon" width="132" height="132">
+      <img class="hero-icon" src="img/mcclim.svg" alt="mcclim icon" width="132" height="132">
       <div class="hero-copy">
         <p class="eyebrow">Common Lisp · McCLIM · SBCL</p>
-        <h1>hello_McCLIM_gui</h1>
+        <h1>mcclim</h1>
         <p class="lead">
           The smallest useful McCLIM application: a window that says <strong>Hello, world!</strong>
           with a <strong>Quit</strong> button. Pass <code>-nw</code> and it prints the greeting to the
           terminal instead — handy for scripts and smoke tests.
         </p>
         <div class="actions">
-          <a class="button primary" href="https://github.com/veto8/hello_McCLIM_gui/releases/latest">Download latest</a>
-          <a class="button" href="https://github.com/veto8/hello_McCLIM_gui">View source</a>
-          <a class="button" href="https://github.com/veto8/hello_McCLIM_gui#readme">README</a>
+          <a class="button primary" href="https://github.com/veto8/mcclim/releases/latest">Download latest</a>
+          <a class="button" href="https://github.com/veto8/mcclim">View source</a>
+          <a class="button" href="https://github.com/veto8/mcclim#readme">README</a>
         </div>
       </div>
     </section>
@@ -88,23 +88,23 @@ sbcl --script main.lisp
 ./ask.sh
 
 # built executable, no window
-./dist/hello_McCLIM_gui/hello_McCLIM_gui -nw</code></pre>
+./dist/mcclim/mcclim -nw</code></pre>
       <p class="hint">Without a flag, the executable opens the window. With a no-window flag it prints to the terminal and exits.</p>
     </section>
 
     <section class="section" id="start">
       <h2>Quick start</h2>
-      <pre><code>git clone https://github.com/veto8/hello_McCLIM_gui.git
-cd hello_McCLIM_gui
+      <pre><code>git clone https://github.com/veto8/mcclim.git
+cd mcclim
 ./ask.sh          # task 1: install SBCL + Quicklisp + McCLIM
-                  # task 2: build bin/ and dist/hello_McCLIM_gui/
+                  # task 2: build bin/ and dist/mcclim/
                   # task 3: run main.lisp</code></pre>
-      <p class="hint">Full details: <a href="https://github.com/veto8/hello_McCLIM_gui#readme">README.md</a>.</p>
+      <p class="hint">Full details: <a href="https://github.com/veto8/mcclim#readme">README.md</a>.</p>
     </section>
   </main>
 
   <footer>
-    hello_McCLIM_gui · <a href="https://github.com/veto8/hello_McCLIM_gui">veto8/hello_McCLIM_gui</a>
+    mcclim · <a href="https://github.com/veto8/mcclim">veto8/mcclim</a>
   </footer>
 </body>
 </html>

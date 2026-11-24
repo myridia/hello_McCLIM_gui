@@ -93,9 +93,17 @@ if [ ! -f "$ql_setup" ]; then
   sbcl --non-interactive \
     --load "$tmp_dir/quicklisp.lisp" \
     --eval '(quicklisp-quickstart:install)' \
-    --eval '(ql:add-to-init-file)' \
     --eval '(sb-ext:exit)'
   rm -rf "$tmp_dir"
+  if ! grep -q 'quicklisp/setup.lisp' "$HOME/.sbclrc" 2>/dev/null; then
+    printf '%s\n' \
+      ';;; The following lines added by ql:add-to-init-file:' \
+      '#-quicklisp' \
+      '(let ((quicklisp-init (merge-pathnames "quicklisp/setup.lisp"' \
+      '                                       (user-homedir-pathname))))' \
+      '  (when (probe-file quicklisp-init)' \
+      '    (load quicklisp-init)))' >> "$HOME/.sbclrc"
+  fi
 fi
 
 sbcl --non-interactive \
