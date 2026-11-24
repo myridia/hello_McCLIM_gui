@@ -29,13 +29,18 @@ jobs:
       - name: Compile
         run: |
           echo "Compile"
-          mkdir -p bin dist/mcclim
+          cd mcclim
+          rm -rf bin dist/mcclim && mkdir -p bin dist/mcclim
           sbcl --non-interactive \
-          --load /tmp/quicklisp.lisp \
-          --eval '(quicklisp-quickstart:install)' \
-          --eval '(sb-ext:exit)'
-          tree 
-          #exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
+            --load /tmp/quicklisp.lisp \
+            --eval '(quicklisp-quickstart:install)' \
+            --eval '(sb-ext:exit)'
+          sbcl --non-interactive \
+            --eval '(defparameter cl-user::*auto-start* nil)' \
+            --load main.lisp \
+            --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
+          find . -maxdepth 2
+          exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
 
       - name: Test
         run: |
