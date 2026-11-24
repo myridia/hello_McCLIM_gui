@@ -29,7 +29,7 @@ The Windows build uses McCLIM 1.0.0's SDL2 backend, so it opens a native window 
 2. Put the two files in the same folder.
 3. Run `.\mcclim_windows.exe` from PowerShell or Cmd.
 
-Keep `SDL2.dll` next to the executable (or on `PATH`); Windows uses SDL 2.32.8 x64. The `-nw` flag still works without SDL2. The Windows build first tries Chocolatey for SBCL, then falls back to the official SBCL MSI if the Chocolatey feed is unavailable. The Windows image is saved with `:compression nil` because the Windows SBCL has no zstd support; other platforms use `:compression t`. The saved core cannot retain cl-sdl2's foreign user-event counter, so `main()` allocates a fresh one at startup before opening a port; the reset code lives in `sdl2-runtime.lisp` and is loaded only for SDL2 builds.
+Keep `SDL2.dll` next to the executable (or on `PATH`); Windows uses SDL 2.32.8 x64. The `-nw` flag still works without SDL2. The Windows build first tries Chocolatey for SBCL, then falls back to the official SBCL MSI if the Chocolatey feed is unavailable. The Windows image is saved with `:compression nil` because the Windows SBCL has no zstd support; other platforms use `:compression t`. The saved core cannot retain cl-sdl2's foreign user-event counter, so `main()` allocates a fresh one at startup before opening a port; the reset code lives in `sdl2-runtime.lisp` and is loaded only for SDL2 builds. GUI runs detach from the Windows console with `FreeConsole`, so no black command-line box remains; `-nw` keeps its console and still prints to stdout. SDL2 windows are centered with `SDL_WINDOWPOS_CENTERED` before they are shown, so the title bar stays on screen in small or virtual displays.
 
 ## macOS DMG
 
@@ -40,7 +40,7 @@ Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dm
 3. Eject the disk image.
 4. Open McCLIM from `/Applications`.
 
-The SBCL saved executable appends the Lisp image after the Mach-O `__LINKEDIT` segment. Apple requires `__LINKEDIT` to be the last data in a signable Mach-O, so this single-file image cannot be codesigned. The binaries and DMG are therefore unsigned; Gatekeeper may warn on a downloaded copy. A signed/notarized release would need a different layout, such as a signable launcher plus the SBCL runtime and core as separate resources.
+The binaries and DMGs are unsigned. Gatekeeper may warn on a downloaded copy; use the quarantine removal steps below if macOS blocks the app.
 
 If macOS blocks the app, run:
 

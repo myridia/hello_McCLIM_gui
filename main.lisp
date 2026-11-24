@@ -81,6 +81,9 @@
   (finish-output))
 
 (defun main ()
+  #+win32
+  (when (not (no-window-p))
+    (cffi:foreign-funcall "FreeConsole" :boolean))
   (when (eq cl-user::*backend* :sdl2)
     (cl-user::reset-sdl2-user-event-id))
   (use-bundled-font)
