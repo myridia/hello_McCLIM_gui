@@ -48,7 +48,7 @@ show_menu() {
   printf "%s\n" '  └─────┴──────────────────────────────────────────────┘'
 }
 
-printf "\n  hello_McCLIM_gui — Task Runner\n\n"
+printf "\n  mcclim — Task Runner\n\n"
 
 while true; do
   show_menu

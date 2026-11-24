@@ -14,41 +14,42 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Install
+      - name: Requirements
         run: |
           sudo apt-get update -y
           sudo apt-get install -y sbcl curl
           curl -fsSL https://beta.quicklisp.org/quicklisp.lisp -o /tmp/quicklisp.lisp
-          sbcl --non-interactive \
-            --load /tmp/quicklisp.lisp \
-            --eval '(quicklisp-quickstart:install)' \
-            --eval '(sb-ext:exit)'
-          sbcl --non-interactive \
-            --load "$HOME/quicklisp/setup.lisp" \
-            --eval '(ql:quickload :mcclim)' \
-            --eval '(sb-ext:exit)'
           sbcl --version
 
+          
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Compile
         run: |
-          ./ask.d/build.sh
+          echo "Compile"
+          cd mcclim
+          rm -rf bin dist/mcclim && mkdir -p bin dist/mcclim
+          sbcl --non-interactive \
+          --eval '(defparameter cl-user::*auto-start* nil)' \
+          --load main.lisp \
+          --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
+          exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
 
-      - name: Smoke test
+      - name: Test
         run: |
-          ./dist/hello_McCLIM_gui/hello_McCLIM_gui -nw
+          echo "Test"          
+          ./dist/mcclim/mcclim -nw
 
       - name: Rename
         run: |
-          cp dist/hello_McCLIM_gui/hello_McCLIM_gui dist/hello_McCLIM_gui/hello_McCLIM_gui_linux
+          cp dist/mcclim/mcclim dist/mcclim/mcclim_linux
 
       - name: Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: 'dist/hello_McCLIM_gui/hello_McCLIM_gui_linux'
+          file: 'dist/mcclim/mcclim_linux'
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true

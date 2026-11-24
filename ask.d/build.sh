@@ -7,15 +7,15 @@
 set -e
 enter
 
-rm -rf bin dist/hello_McCLIM_gui
-mkdir -p bin dist/hello_McCLIM_gui
+rm -rf bin dist/mcclim
+mkdir -p bin dist/mcclim
 
 sbcl --non-interactive \
   --eval '(defparameter cl-user::*auto-start* nil)' \
   --load main.lisp \
-  --eval '(sb-ext:save-lisp-and-die "bin/hello_McCLIM_gui" :toplevel (function clim-user:main) :executable t :compression t)'
+  --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
 
-exe=bin/hello_McCLIM_gui
+exe=bin/mcclim
 [ -e "$exe.exe" ] && exe="$exe.exe"
-cp "$exe" "dist/hello_McCLIM_gui/${exe##*/}"
-printf "ok    dist/hello_McCLIM_gui\n"
+cp "$exe" "dist/mcclim/${exe##*/}"
+printf "ok    dist/mcclim\n"
