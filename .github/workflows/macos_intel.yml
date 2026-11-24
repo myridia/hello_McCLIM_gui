@@ -52,6 +52,11 @@ jobs:
         run: |
           cp dist/mcclim/mcclim dist/mcclim/mcclim_macos_intel
 
+      - name: Ad-hoc sign
+        run: |
+          codesign --force --sign - --identifier com.myridia.mcclim.macos --timestamp=none dist/mcclim/mcclim_macos_intel
+          codesign --verify --strict --verbose=2 dist/mcclim/mcclim_macos_intel
+
       - name: Resolve release tag
         id: release
         shell: bash

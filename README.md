@@ -29,7 +29,19 @@ The Windows build uses McCLIM 1.0.0's SDL2 backend, so it opens a native window 
 2. Put the two files in the same folder.
 3. Run `.\mcclim_windows.exe` from PowerShell or Cmd.
 
-Keep `SDL2.dll` next to the executable (or on `PATH`); Windows uses SDL 2.32.8 x64. The `-nw` flag still works without SDL2. The Windows image is saved with `:compression nil` because Chocolatey's SBCL has no zstd support; other platforms use `:compression t`.
+Keep `SDL2.dll` next to the executable (or on `PATH`); Windows uses SDL 2.32.8 x64. The `-nw` flag still works without SDL2. The Windows build first tries Chocolatey for SBCL, then falls back to the official SBCL MSI if the Chocolatey feed is unavailable. The Windows image is saved with `:compression nil` because the Windows SBCL has no zstd support; other platforms use `:compression t`.
+
+## macOS self-signing
+
+The macOS release binaries are ad-hoc signed with `codesign --sign -`. This satisfies Apple silicon's requirement that every executable has at least an ad-hoc signature. It is not a Developer ID signature and is not notarized, so Gatekeeper may still warn on a downloaded copy.
+
+If macOS blocks the binary, run:
+
+```sh
+xattr -d com.apple.quarantine ./mcclim_macos
+```
+
+Then use **System Settings → Privacy & Security → Open Anyway** if prompted. Use `mcclim_macos_intel` for Intel Macs.
 
 ## Task Runner
 
