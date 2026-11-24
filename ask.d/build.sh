@@ -10,11 +10,22 @@ enter
 rm -rf bin dist/mcclim
 mkdir -p bin dist/mcclim
 
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    compression=nil
+    application=' :application-type :gui'
+    ;;
+  *)
+    compression=t
+    application=
+    ;;
+esac
+
 sbcl --non-interactive \
   --eval '(defparameter cl-user::*auto-start* nil)' \
   --load main.lisp \
   --eval '(defparameter cl-user::*bundled-font-bytes* (with-open-file (s (cl-dejavu:font-pathname "DejaVuSans.ttf") :element-type (quote (unsigned-byte 8))) (let* ((n (file-length s)) (b (make-array n :element-type (quote (unsigned-byte 8))))) (read-sequence b s) b)))' \
-  --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
+  --eval "(sb-ext:save-lisp-and-die \"bin/mcclim\" :toplevel (function clim-user:main) :executable t :compression $compression$application)"
 
 exe=bin/mcclim
 [ -e "$exe.exe" ] && exe="$exe.exe"

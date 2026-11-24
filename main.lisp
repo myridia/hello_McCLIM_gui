@@ -76,20 +76,47 @@
               (string= arg "--no-window")))
         (command-line-args)))
 
+(defun free-console ()
+  #+win32
+  (cffi:foreign-funcall "FreeConsole" :boolean)
+  #-win32
+  t)
+
+(defun attach-parent-console ()
+  #+win32
+  (cffi:foreign-funcall "AttachConsole" :int -1 :boolean)
+  #-win32
+  t)
+
+(defun write-console-line (text)
+  (let ((message (format nil "~a~%" text)))
+    #+win32
+    (cffi:with-foreign-object (written :unsigned-int)
+      (cffi:foreign-funcall
+       "WriteFile"
+       :pointer (cffi:foreign-funcall "GetStdHandle" :int -11 :pointer)
+       :string message
+       :unsigned-int (length message)
+       :pointer written
+       :pointer (cffi:null-pointer)
+       :boolean))
+    #-win32
+    (format t "~a" message)))
+
 (defun command-line-main ()
-  (format t "Hello, world!~%")
-  (finish-output))
+  (attach-parent-console)
+  (write-console-line "Hello, world!"))
 
 (defun main ()
-  #+win32
-  (when (not (no-window-p))
-    (cffi:foreign-funcall "FreeConsole" :boolean))
   (when (eq cl-user::*backend* :sdl2)
     (cl-user::reset-sdl2-user-event-id))
-  (use-bundled-font)
   (if (no-window-p)
       (command-line-main)
-      (run-frame-top-level (make-application-frame 'hello-frame))))
+      (progn
+        #+win32
+        (free-console)
+        (use-bundled-font)
+        (run-frame-top-level (make-application-frame 'hello-frame)))))
 
 (export 'main)
 

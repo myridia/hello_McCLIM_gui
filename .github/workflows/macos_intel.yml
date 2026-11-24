@@ -65,9 +65,9 @@ jobs:
             <key>CFBundleName</key>
             <string>McCLIM</string>
             <key>CFBundleDisplayName</key>
-            <string>McCLIM</string>
+            <string>McCLIM (Intel)</string>
             <key>CFBundleIdentifier</key>
-            <string>com.myridia.mcclim</string>
+            <string>com.myridia.mcclim.intel</string>
             <key>CFBundleExecutable</key>
             <string>mcclim</string>
             <key>CFBundlePackageType</key>
@@ -82,6 +82,8 @@ jobs:
           </plist>
           EOF
           chmod +x mcclim_macos_intel.app/Contents/MacOS/mcclim
+          plutil -lint mcclim_macos_intel.app/Contents/Info.plist
+          test -x mcclim_macos_intel.app/Contents/MacOS/mcclim
           hdiutil create -volname "mcclim_macos" -srcfolder "mcclim_macos_intel.app" -ov -format UDZO "dist/mcclim/mcclim_macos_intel.dmg"
           hdiutil verify dist/mcclim/mcclim_macos_intel.dmg
 
