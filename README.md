@@ -37,6 +37,8 @@ Keep `SDL2.dll` next to the raw executable (or on `PATH`) when using the zip; Wi
 
 Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dmg` for Intel Macs. Use the `.app` inside the DMG for GUI launches. The standalone `mcclim_macos` / `mcclim_macos_intel` files are Unix executables: double-clicking one in Finder opens Terminal, which is expected. Run them from a terminal only when you need the `-nw` output.
 
+To test the exact bundle and DMG locally on a Mac, run `./ask.sh` and select tasks 1, 2, and 4. Task 4 writes `dist/mcclim/mcclim_macos_intel.dmg` on Intel and `dist/mcclim/mcclim_macos.dmg` on Apple silicon.
+
 1. Download the DMG for your Mac.
 2. Clear quarantine from the downloaded DMG **before mounting it**, then verify it:
 
@@ -57,7 +59,7 @@ Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dm
 
    For Apple silicon, use `/Applications/mcclim_macos.app`.
 
-The binaries and DMGs are unsigned. After downloading, macOS marks them with a quarantine attribute. Gatekeeper reports an unsigned quarantined app as **“is damaged and can’t be opened. You should move it to the Trash.”** The DMG is verified in CI, and the `.app` bundle already contains an executable `Contents/MacOS/mcclim`; `chmod +x` only fixes file permissions and does not clear this Gatekeeper message.
+The binaries and DMGs are unsigned. After downloading, macOS marks them with a quarantine attribute. Gatekeeper reports an unsigned quarantined app as **“is damaged and can’t be opened. You should move it to the Trash.”** The DMG is verified in CI, and the `.app` bundle already contains an executable `Contents/MacOS/mcclim`; `chmod +x` only fixes file permissions and does not clear this Gatekeeper message. There is no DMG-only fix for this: without Developer ID signing and notarization, the quarantine attribute must be removed locally.
 
 If Finder opens Terminal instead of the `.app`, refresh LaunchServices:
 
@@ -79,6 +81,7 @@ Use `/Applications/mcclim_macos.app` for Apple silicon. If macOS still prompts, 
 | 1 | Setup - check and install requirements (SBCL, Quicklisp, McCLIM; Linux, macOS, Windows) |
 | 2 | Build - save a self-contained SBCL executable |
 | 3 | Run - `sbcl --script main.lisp` |
+| 4 | Package - build a macOS `.app` and DMG from the task 2 executable |
 | 0 | Exit |
 
 ## Build output
