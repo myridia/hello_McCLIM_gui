@@ -37,7 +37,7 @@ Keep `SDL2.dll` next to the raw executable (or on `PATH`) when using the zip; Wi
 
 Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dmg` for Intel Macs. Use the `.app` inside the DMG for GUI launches. The standalone `mcclim_macos` / `mcclim_macos_intel` files are Unix executables: double-clicking one in Finder opens Terminal, which is expected. Run them from a terminal only when you need the `-nw` output.
 
-To test the exact bundle and DMG locally on a Mac, run `./ask.sh` and select tasks 1, 2, and 4. Task 4 writes `dist/mcclim/mcclim_macos_intel.dmg` on Intel and `dist/mcclim/mcclim_macos.dmg` on Apple silicon.
+To test the exact bundle and DMG locally on a Mac, run `./ask.sh` and select tasks 1, 2, and 4. Task 4 uses the same `ask.d/dmg.sh` script as both macOS workflows and writes `dist/mcclim/mcclim_macos_intel.dmg` on Intel and `dist/mcclim/mcclim_macos.dmg` on Apple silicon.
 
 1. Download the DMG for your Mac.
 2. Clear quarantine from the downloaded DMG **before mounting it**, then verify it:
