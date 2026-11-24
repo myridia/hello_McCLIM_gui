@@ -41,6 +41,12 @@ dmg="dist/mcclim/$name.dmg"
 rm -rf "$app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 ditto "$exe" "$app/Contents/MacOS/mcclim"
+exe_dir=${exe%/*}
+[ "$exe_dir" = "$exe" ] && exe_dir=.
+for zstd in "$exe_dir"/libzstd*.dylib; do
+  [ -f "$zstd" ] || continue
+  ditto "$zstd" "$app/Contents/MacOS/${zstd##*/}"
+done
 printf 'APPL????' > "$app/Contents/PkgInfo"
 cat > "$app/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
