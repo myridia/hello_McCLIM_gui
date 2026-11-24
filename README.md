@@ -25,11 +25,13 @@ Without a flag, the executable opens the McCLIM window.
 
 The Windows build uses McCLIM 1.0.0's SDL2 backend, so it opens a native window and does not need an X server or `DISPLAY`.
 
-1. Download both `mcclim_windows.exe` and `SDL2.dll` from the same release.
-2. Put the two files in the same folder.
+1. Download `mcclim_windows.zip` from the release and extract it.
+2. Keep `mcclim_windows.exe` and `SDL2.dll` in the same folder.
 3. Run `.\mcclim_windows.exe` from PowerShell or Cmd.
 
-Keep `SDL2.dll` next to the executable (or on `PATH`); Windows uses SDL 2.32.8 x64. The `-nw` flag still works without SDL2. The Windows build first tries Chocolatey for SBCL, then falls back to the official SBCL MSI if the Chocolatey feed is unavailable. The Windows image is saved with `:compression nil` because the Windows SBCL has no zstd support; other platforms use `:compression t`. The saved core cannot retain cl-sdl2's foreign user-event counter, so `main()` allocates a fresh one at startup before opening a port; the reset code lives in `sdl2-runtime.lisp` and is loaded only for SDL2 builds. GUI runs detach from the Windows console with `FreeConsole`, so no black command-line box remains; `-nw` keeps its console and still prints to stdout. SDL2 windows are centered with `SDL_WINDOWPOS_CENTERED` before they are shown, so the title bar stays on screen in small or virtual displays.
+If you downloaded only the `.exe`, also download `SDL2.dll` from the same release and put it beside the executable. Running the `.exe` without the DLL fails during SBCL startup with `Error opening shared object "SDL2.dll"`.
+
+Keep `SDL2.dll` next to the executable (or on `PATH`); Windows uses SDL 2.32.8 x64. The `-nw` flag still works without SDL2. The Windows build first tries Chocolatey for SBCL, then falls back to the official SBCL MSI if the Chocolatey feed is unavailable. The Windows image is saved with `:compression nil` because the Windows SBCL has no zstd support; other platforms use `:compression t`. The saved core cannot retain cl-sdl2's foreign user-event counter, so `main()` allocates a fresh one at startup before opening a port; the reset code lives in `sdl2-runtime.lisp` and is loaded only for SDL2 builds. The Windows executable is saved with `:application-type :gui`, so no console window is created for GUI runs. `-nw` attaches to the parent console and writes `Hello, world!` directly, so it works without a GUI subsystem console. SDL2 windows are forced to be bordered and centered with `SDL_WINDOWPOS_CENTERED` before they are shown, so the title bar stays on screen in small or virtual displays.
 
 ## macOS DMG
 
@@ -40,17 +42,21 @@ Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dm
 3. Eject the disk image.
 4. Open McCLIM from `/Applications`.
 
-The binaries and DMGs are unsigned. Gatekeeper may warn on a downloaded copy; use the quarantine removal steps below if macOS blocks the app.
+The binaries and DMGs are unsigned. After downloading, macOS marks them with a quarantine attribute. Gatekeeper reports an unsigned quarantined app as **“is damaged and can’t be opened. You should move it to the Trash.”** The DMG itself is verified in CI; this message is not a corrupt download.
 
-If macOS blocks the app, run:
+Clear the quarantine after dragging the app to `/Applications`:
 
 ```sh
 xattr -dr com.apple.quarantine /Applications/mcclim_macos.app
 ```
 
-For Intel, use `/Applications/mcclim_macos_intel.app`.
+For Intel:
 
-Then use **System Settings → Privacy & Security → Open Anyway** if prompted. For a standalone binary, use `xattr -d com.apple.quarantine ./mcclim_macos` or `./mcclim_macos_intel`.
+```sh
+xattr -dr com.apple.quarantine /Applications/mcclim_macos_intel.app
+```
+
+If macOS still prompts, use **System Settings → Privacy & Security → Open Anyway**. For a standalone binary, run `xattr -d com.apple.quarantine ./mcclim_macos` or `./mcclim_macos_intel` before launching it.
 
 ## Task Runner
 

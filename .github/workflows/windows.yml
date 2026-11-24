@@ -100,7 +100,7 @@ jobs:
             --eval '(defparameter cl-user::*auto-start* nil)' \
             --load main.lisp \
             --eval '(defparameter cl-user::*bundled-font-bytes* (with-open-file (s (cl-dejavu:font-pathname "DejaVuSans.ttf") :element-type (quote (unsigned-byte 8))) (let* ((n (file-length s)) (b (make-array n :element-type (quote (unsigned-byte 8))))) (read-sequence b s) b)))' \
-            --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression nil)'
+            --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression nil :application-type :gui)'
           exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
           cp vendor/sdl2/SDL2.dll dist/mcclim/SDL2.dll
 
@@ -110,6 +110,12 @@ jobs:
           exe=dist/mcclim/mcclim
           [ -e "$exe.exe" ] && exe="$exe.exe"
           cp "$exe" dist/mcclim/mcclim_windows.exe
+
+      - name: Package zip
+        shell: bash
+        run: |
+          win_dir=$(cygpath -w "$PWD/dist/mcclim")
+          powershell.exe -NoProfile -Command "Compress-Archive -Force -Path '$win_dir\mcclim_windows.exe','$win_dir\SDL2.dll' -DestinationPath '$win_dir\mcclim_windows.zip'"
 
       - name: Resolve release tag
         id: release
@@ -134,7 +140,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: 'dist/mcclim/{mcclim_windows.exe,SDL2.dll}'
+          file: 'dist/mcclim/{mcclim_windows.exe,SDL2.dll,mcclim_windows.zip}'
           tag: ${{ steps.release.outputs.tag }}
           overwrite: true
           file_glob: true
