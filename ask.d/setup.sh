@@ -106,8 +106,15 @@ if [ ! -f "$ql_setup" ]; then
   fi
 fi
 
+"$ROOT/sdl2.sh"
+
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*) export PATH="$ROOT/vendor/sdl2:$PATH" ;;
+esac
+
 sbcl --non-interactive \
   --load "$HOME/quicklisp/setup.lisp" \
+  --eval '(ql:register-local-projects)' \
   --eval '(ql:quickload :mcclim)' \
   --eval '(sb-ext:exit)'
 

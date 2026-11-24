@@ -1,5 +1,7 @@
 /bin/
 /dist/
+/vendor/
+/SDL2.dll
 /make_deb/src/mcclim
 /make_deb/*.deb
 

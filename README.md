@@ -21,6 +21,16 @@ sbcl --script main.lisp
 `-nw`, `--nw`, and `--no-window` skip the GUI and print `Hello, world!` to the terminal.
 Without a flag, the executable opens the McCLIM window.
 
+## Windows: native window without X11
+
+The Windows build uses McCLIM 1.0.0's SDL2 backend, so it opens a native window and does not need an X server or `DISPLAY`.
+
+1. Download both `mcclim_windows.exe` and `SDL2.dll` from the same release.
+2. Put the two files in the same folder.
+3. Run `.\mcclim_windows.exe` from PowerShell or Cmd.
+
+Keep `SDL2.dll` next to the executable (or on `PATH`); Windows uses SDL 2.32.8 x64. The `-nw` flag still works without SDL2. The Windows image is saved with `:compression nil` because Chocolatey's SBCL has no zstd support; other platforms use `:compression t`.
+
 ## Task Runner
 
 ```sh
@@ -36,13 +46,13 @@ Without a flag, the executable opens the McCLIM window.
 
 ## Build output
 
-Task 2 creates `dist/mcclim/` with a single ~22 MB SBCL executable. McCLIM, the Lisp runtime, and `DejaVuSans.ttf` are saved into the image, so there is no `lib/` tree and no SBCL, Quicklisp, or system font install needed on the target machine. On each GUI run the embedded font is extracted to `~/.cache/mcclim/DejaVuSans.ttf`; all text styles use that one regular face.
+Task 2 creates `dist/mcclim/` with a ~22 MB SBCL executable (plus `SDL2.dll` on Windows). McCLIM, the Lisp runtime, and `DejaVuSans.ttf` are saved into the image, so there is no `lib/` tree and no SBCL, Quicklisp, or system font install needed on the target machine. On each GUI run the embedded font is extracted to `~/.cache/mcclim/DejaVuSans.ttf`; all text styles use that one regular face.
 
 | Project | Distribution | Size |
 |---------|--------------|------|
 | Racket | `bin/` executable + `lib/` runtime libraries | ~68 MB |
 | McCLIM / SBCL | one self-contained executable | ~22 MB |
 
-Copy the executable to another machine with the same OS and CPU architecture and run it there; no companion font file is needed. The Debian workflow also packages it as `mcclim_0.1.0-1_amd64.deb` via `make_deb/`.
+Copy the executable to another machine with the same OS and CPU architecture and run it there; no companion font file is needed. On Windows, copy `SDL2.dll` with it. The Debian workflow also packages it as `mcclim_0.1.0-1_amd64.deb` via `make_deb/`.
 
 Task 1 installs SBCL when missing, bootstraps Quicklisp into `~/quicklisp`, and loads McCLIM through Quicklisp. On Windows, use a POSIX shell such as Git Bash/MSYS/Cygwin.
