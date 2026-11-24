@@ -30,7 +30,57 @@ jobs:
       - name: Install SBCL
         shell: pwsh
         run: |
-          choco install sbcl -y --no-progress
+          function Add-ToPath($dir) {
+            if (-not $dir -or -not (Test-Path $dir)) { return }
+            if (($env:PATH -split ';') -notcontains $dir) {
+              $env:PATH = "$dir;$env:PATH"
+              "$dir" >> $env:GITHUB_PATH
+            }
+          }
+
+          function Find-Sbcl {
+            $candidates = @()
+            if ($env:ChocolateyInstall) {
+              $candidates += Join-Path $env:ChocolateyInstall 'bin\sbcl.exe'
+            }
+            $candidates += "$env:ProgramFiles\Steel Bank Common Lisp\2.6.10\sbcl.exe"
+            $candidates += "${env:ProgramFiles(x86)}\Steel Bank Common Lisp\2.6.10\sbcl.exe"
+            foreach ($candidate in $candidates) {
+              if ($candidate -and (Test-Path $candidate)) { return $candidate }
+            }
+            $roots = @($env:ProgramFiles, ${env:ProgramFiles(x86)}) | Where-Object { $_ -and (Test-Path $_) }
+            return Get-ChildItem -Path $roots -Filter sbcl.exe -Recurse -ErrorAction SilentlyContinue |
+              Select-Object -First 1 -ExpandProperty FullName
+          }
+
+          if ($env:ChocolateyInstall) {
+            Add-ToPath (Join-Path $env:ChocolateyInstall 'bin')
+          }
+
+          $installed = $false
+          for ($attempt = 1; $attempt -le 3; $attempt++) {
+            Write-Host "Chocolatey SBCL install attempt $attempt"
+            choco install sbcl -y --no-progress --version 2.6.10
+            if ($LASTEXITCODE -eq 0 -and (Find-Sbcl)) {
+              $installed = $true
+              break
+            }
+            if ($attempt -lt 3) { Start-Sleep -Seconds 15 }
+          }
+
+          if (-not $installed) {
+            Write-Host "Chocolatey failed; installing SBCL from the official MSI"
+            $msi = Join-Path $env:RUNNER_TEMP 'sbcl-2.6.10-x86-64-windows-binary.msi'
+            $log = Join-Path $env:RUNNER_TEMP 'sbcl-install.log'
+            curl.exe -fsSL -o $msi 'https://downloads.sourceforge.net/project/sbcl/sbcl/2.6.10/sbcl-2.6.10-x86-64-windows-binary.msi'
+            if ($LASTEXITCODE -ne 0) { throw "Could not download SBCL MSI" }
+            $process = Start-Process msiexec.exe -ArgumentList "/i `"$msi`" /quiet /norestart /log `"$log`"" -Wait -PassThru
+            if ($process.ExitCode -notin @(0, 3010)) { throw "SBCL MSI install failed with exit code $($process.ExitCode)" }
+          }
+
+          $sbcl = Find-Sbcl
+          if (-not $sbcl) { throw "SBCL install did not provide sbcl.exe" }
+          Add-ToPath (Split-Path -Parent $sbcl)
           sbcl --version
 
       - name: Compile
