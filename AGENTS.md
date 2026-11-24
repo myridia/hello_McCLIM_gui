@@ -20,6 +20,7 @@ The window shows “Hello, world!” with a **Quit** button.
 - `ask.d/build.sh` — task 2: embed `DejaVuSans.ttf` in the SBCL image and save a self-contained executable
 - `ask.d/run.sh` — task 3: run with `sbcl --script main.lisp`
 - `ask.d/dmg.sh` — task 4 and both macOS workflows: build a macOS `.app` bundle and DMG from a built executable; `MCCLIM_DMG_SOURCE` selects the input binary
+- `ask.d/clean.sh` — task 5: remove `dist/`, `bin/`, and the macOS `.app` bundles created by task 4
 - `README.md` — project title, logo, and commands
 - `AGENTS.md` — this project guide
 - `LICENSE` — project license
