@@ -26,6 +26,11 @@
 
 (when (eq cl-user::*backend* :sdl2)
   (ql:quickload :mcclim-sdl2)
+  (defun cl-user::reset-sdl2-user-event-id ()
+    (setf sdl2::*user-event-id*
+          (plus-c:c-let ((atomic sdl2-ffi:sdl-atomic-t))
+            (setf (atomic :value) 0)
+            atomic)))
   (setf clim:*default-server-path* '(:sdl2-soft)))
 
 (in-package :clim-user)
@@ -79,6 +84,8 @@
   (finish-output))
 
 (defun main ()
+  (when (eq cl-user::*backend* :sdl2)
+    (cl-user::reset-sdl2-user-event-id))
   (use-bundled-font)
   (if (no-window-p)
       (command-line-main)
