@@ -1,0 +1,91 @@
+#!/bin/sh
+# id: 4
+# group: PACKAGE
+# desc: Package - build macOS .app and DMG
+. "$(dirname "$0")/lib.sh"
+
+set -e
+enter
+
+case "$(uname -s)" in
+  Darwin*) ;;
+  *)
+    printf "FAIL  DMG packaging requires macOS\n"
+    exit 1
+    ;;
+esac
+
+exe=dist/mcclim/mcclim
+[ -e "$exe.exe" ] && exe="$exe.exe"
+if [ ! -x "$exe" ]; then
+  printf "FAIL  build first with task 2\n"
+  exit 1
+fi
+
+case "$(uname -m)" in
+  arm64)
+    name=mcclim_macos
+    identifier=com.myridia.mcclim.arm64
+    display="McCLIM (Apple silicon)"
+    ;;
+  *)
+    name=mcclim_macos_intel
+    identifier=com.myridia.mcclim.intel
+    display="McCLIM (Intel)"
+    ;;
+esac
+
+app="$name.app"
+dmg="dist/mcclim/$name.dmg"
+
+rm -rf "$app"
+mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
+ditto "$exe" "$app/Contents/MacOS/mcclim"
+printf 'APPL????' > "$app/Contents/PkgInfo"
+cat > "$app/Contents/Info.plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key>
+  <string>McCLIM</string>
+  <key>CFBundleDisplayName</key>
+  <string>$display</string>
+  <key>CFBundleIdentifier</key>
+  <string>$identifier</string>
+  <key>CFBundleExecutable</key>
+  <string>mcclim</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleSignature</key>
+  <string>????</string>
+  <key>CFBundleDevelopmentRegion</key>
+  <string>en</string>
+  <key>LSMinimumSystemVersion</key>
+  <string>11.0</string>
+  <key>CFBundleShortVersionString</key>
+  <string>0.1.0</string>
+  <key>CFBundleVersion</key>
+  <string>1</string>
+  <key>NSHighResolutionCapable</key>
+  <true/>
+</dict>
+</plist>
+EOF
+
+chmod 755 "$app/Contents/MacOS/mcclim"
+plutil -lint "$app/Contents/Info.plist"
+test -x "$app/Contents/MacOS/mcclim"
+hdiutil create -volname "mcclim_macos" -srcfolder "$app" -ov -format UDZO "$dmg"
+hdiutil verify "$dmg"
+
+mountpoint=$(mktemp -d "${TMPDIR:-/tmp}/mcclim-dmg.XXXXXX")
+trap 'hdiutil detach "$mountpoint" >/dev/null 2>&1 || true; rmdir "$mountpoint" 2>/dev/null || true' EXIT
+hdiutil attach -nobrowse -noautoopen -mountpoint "$mountpoint" "$dmg"
+plutil -lint "$mountpoint/$app/Contents/Info.plist"
+test -x "$mountpoint/$app/Contents/MacOS/mcclim"
+hdiutil detach "$mountpoint"
+rmdir "$mountpoint"
+trap - EXIT
+
+printf "ok    %s\n" "$dmg"
