@@ -16,6 +16,7 @@ jobs:
     steps:
       - name: Requirements
         run: |
+          echo "Requirements"
           sudo apt-get update -y
           sudo apt-get install -y sbcl curl
           curl -fsSL https://beta.quicklisp.org/quicklisp.lisp -o /tmp/quicklisp.lisp
@@ -29,7 +30,7 @@ jobs:
         run: |
           echo "Compile"
           cd mcclim
-          rm -rf bin dist/mcclim && mkdir -p bin dist/mcclim
+          mkdir -p bin dist/mcclim
           sbcl --non-interactive \
           --eval '(defparameter cl-user::*auto-start* nil)' \
           --load main.lisp \
