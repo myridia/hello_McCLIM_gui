@@ -18,7 +18,7 @@ jobs:
         run: |
           echo "Requirements"
           sudo apt-get update -y
-          sudo apt-get install -y sbcl curl
+          sudo apt-get install -y sbcl curl tree
           curl -fsSL https://beta.quicklisp.org/quicklisp.lisp -o /tmp/quicklisp.lisp
           sbcl --version
 
@@ -29,13 +29,14 @@ jobs:
       - name: Compile
         run: |
           echo "Compile"
-          cd mcclim
-          mkdir -p bin dist/mcclim
-          sbcl --non-interactive \
-          --eval '(defparameter cl-user::*auto-start* nil)' \
-          --load main.lisp \
-          --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
-          exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
+          tree 
+          #cd mcclim
+          #mkdir -p bin dist/mcclim
+          #sbcl --non-interactive \
+          #--eval '(defparameter cl-user::*auto-start* nil)' \
+          #--load main.lisp \
+          #--eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
+          #exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
 
       - name: Test
         run: |
