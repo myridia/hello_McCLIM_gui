@@ -15,7 +15,7 @@ case "$(uname -s)" in
     ;;
 esac
 
-exe=dist/mcclim/mcclim
+exe=${MCCLIM_DMG_SOURCE:-dist/mcclim/mcclim}
 [ -e "$exe.exe" ] && exe="$exe.exe"
 if [ ! -x "$exe" ]; then
   printf "FAIL  build first with task 2\n"
