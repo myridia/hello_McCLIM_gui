@@ -31,17 +31,26 @@ The Windows build uses McCLIM 1.0.0's SDL2 backend, so it opens a native window 
 
 Keep `SDL2.dll` next to the executable (or on `PATH`); Windows uses SDL 2.32.8 x64. The `-nw` flag still works without SDL2. The Windows build first tries Chocolatey for SBCL, then falls back to the official SBCL MSI if the Chocolatey feed is unavailable. The Windows image is saved with `:compression nil` because the Windows SBCL has no zstd support; other platforms use `:compression t`.
 
-## macOS self-signing
+## macOS DMG
 
-The macOS release binaries are ad-hoc signed with `codesign --sign -`. This satisfies Apple silicon's requirement that every executable has at least an ad-hoc signature. It is not a Developer ID signature and is not notarized, so Gatekeeper may still warn on a downloaded copy.
+Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dmg` for Intel Macs.
 
-If macOS blocks the binary, run:
+1. Download the DMG for your Mac.
+2. Open it and drag `mcclim_macos.app` (Apple silicon) or `mcclim_macos_intel.app` (Intel) to `/Applications`.
+3. Eject the disk image.
+4. Open McCLIM from `/Applications`.
+
+The standalone binaries and the `.app` inside the DMG are ad-hoc signed with `codesign --sign -`. This satisfies Apple silicon's requirement that every executable has at least an ad-hoc signature. It is not a Developer ID signature and is not notarized, so Gatekeeper may still warn on a downloaded copy. Ad-hoc signatures are checked with `codesign --verify` without `--strict`, which requires a Developer ID secure timestamp.
+
+If macOS blocks the app, run:
 
 ```sh
-xattr -d com.apple.quarantine ./mcclim_macos
+xattr -dr com.apple.quarantine /Applications/mcclim_macos.app
 ```
 
-Then use **System Settings → Privacy & Security → Open Anyway** if prompted. Use `mcclim_macos_intel` for Intel Macs.
+For Intel, use `/Applications/mcclim_macos_intel.app`.
+
+Then use **System Settings → Privacy & Security → Open Anyway** if prompted. For a standalone binary, use `xattr -d com.apple.quarantine ./mcclim_macos` or `./mcclim_macos_intel`.
 
 ## Task Runner
 

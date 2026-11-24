@@ -8,6 +8,12 @@ case "$PLATFORM" in
   MINGW*|MSYS*|CYGWIN*) WINDOWS=yes ;;
 esac
 
+if [ "$WINDOWS" = yes ]; then
+  HOME_POSIX=$(cygpath -u "$HOME" 2>/dev/null || printf '%s' "$HOME")
+else
+  HOME_POSIX="$HOME"
+fi
+
 if [ "$WINDOWS" = no ] && [ "${MCCLIM_BACKEND:-}" != "sdl2" ]; then
   printf "ok    sdl2 skipped (not Windows)\n"
   exit 0
@@ -21,7 +27,7 @@ fetch() {
   fi
 }
 
-mcclim_dir="$HOME/quicklisp/local-projects/mcclim"
+mcclim_dir="$HOME_POSIX/quicklisp/local-projects/mcclim"
 if [ -f "$mcclim_dir/mcclim.asd" ] && grep -q ':version "1.0.0"' "$mcclim_dir/mcclim.asd"; then
   printf "ok    mcclim 1.0.0\n"
 else
@@ -30,7 +36,7 @@ else
   rm -rf "$mcclim_dir"
   mkdir -p "$mcclim_dir"
   tar -xzf "$tmp_dir/mcclim.tar.gz" --strip-components=1 -C "$mcclim_dir"
-  touch "$HOME/quicklisp/local-projects"
+  mkdir -p "$HOME_POSIX/quicklisp/local-projects"
   rm -rf "$tmp_dir"
   printf "ok    mcclim 1.0.0\n"
 fi

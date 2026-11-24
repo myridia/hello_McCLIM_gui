@@ -72,7 +72,7 @@ jobs:
             Write-Host "Chocolatey failed; installing SBCL from the official MSI"
             $msi = Join-Path $env:RUNNER_TEMP 'sbcl-2.6.10-x86-64-windows-binary.msi'
             $log = Join-Path $env:RUNNER_TEMP 'sbcl-install.log'
-            curl.exe -fsSL -o $msi 'https://downloads.sourceforge.net/project/sbcl/sbcl/2.6.10/sbcl-2.6.10-x86-64-windows-binary.msi'
+            curl.exe -fsSL -o "$msi" 'https://downloads.sourceforge.net/project/sbcl/sbcl/2.6.10/sbcl-2.6.10-x86-64-windows-binary.msi'
             if ($LASTEXITCODE -ne 0) { throw "Could not download SBCL MSI" }
             $process = Start-Process msiexec.exe -ArgumentList "/i `"$msi`" /quiet /norestart /log `"$log`"" -Wait -PassThru
             if ($process.ExitCode -notin @(0, 3010)) { throw "SBCL MSI install failed with exit code $($process.ExitCode)" }
