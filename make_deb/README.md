@@ -3,6 +3,9 @@
 The package installs the prebuilt SBCL executable into `/usr/bin/mcclim`.
 McCLIM and `DejaVuSans.ttf` are embedded in that executable.
 
+`debian/rules` overrides `dh_strip`: stripping an SBCL executable removes its
+embedded core (23 MB becomes ~450 KB), producing a tiny, non-working package.
+
 ## Copy the built binary
 
 ```
