@@ -21,7 +21,8 @@ The window shows “Hello, world!” with a **Quit** button.
 - `AGENTS.md` — this project guide
 - `LICENSE` — project license
 - `.gitignore` — Common Lisp and build-output ignore rules
-- `hello_McCLIM_gui.svg` — README logo
+- `hello_McCLIM_gui.svg` — README logo; also used by the project page
+- `pages/public/` — GitHub Pages site (`index.html`, `style.css`, `img/hello_McCLIM_gui.svg`), deployed by `pages.yml`
 
 ## Run
 ```sh
@@ -43,8 +44,9 @@ Built executable with no window:
 `-nw`, `--nw`, and `--no-window` print `Hello, world!` to stdout instead of opening the McCLIM window.
 
 ## Workflows
-- `.github/workflows/control.yml` — single build gate copied from couchy; push to `main`, any tag, and manual dispatch. Only `linux` is enabled; the other build lines are commented out.
-- `.github/workflows/linux.yml` — `workflow_call` + `workflow_dispatch`. Install step installs SBCL/curl and bootstraps Quicklisp with McCLIM (same steps as `ask.d/setup.sh`), then builds via `ask.d/build.sh`, smoke-tests the `-nw` output, and uploads `hello_McCLIM_gui_linux` to the release. The `myridia` guard lives only in `control.yml`.
+- `.github/workflows/control.yml` — single build gate copied from couchy; push to `main`, any tag, and manual dispatch. `linux` and `pages` are enabled; the other build lines are commented out.
+- `.github/workflows/linux.yml` — `workflow_call` + `workflow_dispatch`. Install step installs SBCL/curl and bootstraps Quicklisp with McCLIM, then builds via `ask.d/build.sh`, smoke-tests the `-nw` output, and uploads `hello_McCLIM_gui_linux` to the release. It deliberately omits `ql:add-to-init-file` — that call prompts for Enter and fails on CI's closed stdin; `main.lisp` loads `~/quicklisp/setup.lisp` itself.
+- `.github/workflows/pages.yml` — `workflow_call` + `workflow_dispatch`, deploys `pages/public` to GitHub Pages via `configure-pages` / `upload-pages-artifact` / `deploy-pages`. The `myridia` guard lives only in `control.yml`.
 
 ## Conventions
 - Keep the README logo as its first line.
