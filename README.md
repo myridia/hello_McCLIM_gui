@@ -40,7 +40,7 @@ Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dm
 3. Eject the disk image.
 4. Open McCLIM from `/Applications`.
 
-The standalone binaries and the `.app` inside the DMG are ad-hoc signed with `codesign --sign -`. This satisfies Apple silicon's requirement that every executable has at least an ad-hoc signature. It is not a Developer ID signature and is not notarized, so Gatekeeper may still warn on a downloaded copy. Ad-hoc signatures are checked with `codesign --verify` without `--strict`, which requires a Developer ID secure timestamp.
+The SBCL saved executable appends the Lisp image after the Mach-O `__LINKEDIT` segment. Apple requires `__LINKEDIT` to be the last data in a signable Mach-O, so this single-file image cannot be codesigned. The binaries and DMG are therefore unsigned; Gatekeeper may warn on a downloaded copy. A signed/notarized release would need a different layout, such as a signable launcher plus the SBCL runtime and core as separate resources.
 
 If macOS blocks the app, run:
 

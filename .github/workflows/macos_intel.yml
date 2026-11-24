@@ -52,11 +52,6 @@ jobs:
         run: |
           cp dist/mcclim/mcclim dist/mcclim/mcclim_macos_intel
 
-      - name: Ad-hoc sign
-        run: |
-          codesign --force --sign - --identifier com.myridia.mcclim.macos --timestamp=none dist/mcclim/mcclim_macos_intel
-          codesign --verify --verbose=2 dist/mcclim/mcclim_macos_intel
-
       - name: Package DMG
         run: |
           rm -rf mcclim_macos_intel.app
@@ -87,12 +82,7 @@ jobs:
           </plist>
           EOF
           chmod +x mcclim_macos_intel.app/Contents/MacOS/mcclim
-          codesign --force --sign - --identifier com.myridia.mcclim.executable --timestamp=none mcclim_macos_intel.app/Contents/MacOS/mcclim
-          codesign --force --sign - --identifier com.myridia.mcclim --timestamp=none mcclim_macos_intel.app
-          codesign --verify --deep --verbose=2 mcclim_macos_intel.app
           hdiutil create -volname "mcclim_macos" -srcfolder "mcclim_macos_intel.app" -ov -format UDZO "dist/mcclim/mcclim_macos_intel.dmg"
-          codesign --force --sign - --timestamp=none dist/mcclim/mcclim_macos_intel.dmg
-          codesign --verify --verbose=2 dist/mcclim/mcclim_macos_intel.dmg
           hdiutil verify dist/mcclim/mcclim_macos_intel.dmg
 
       - name: Resolve release tag
