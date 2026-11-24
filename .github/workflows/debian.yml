@@ -42,6 +42,7 @@ jobs:
       - name: Package
         run: |
           tree 
+          du * -sh 
           cp dist/mcclim/mcclim make_deb/src/mcclim
           ls -l make_deb/src/mcclim
           cd make_deb/src
