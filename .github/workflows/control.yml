@@ -22,4 +22,4 @@ jobs:
   #macos_intel: { if: github.repository_owner == 'myridia', uses: ./.github/workflows/macos_intel.yml, secrets: inherit }
   #freebsd:    { if: github.repository_owner == 'myridia', uses: ./.github/workflows/freebsd.yml, secrets: inherit }
   #msix:       { if: github.repository_owner == 'myridia', uses: ./.github/workflows/msix.yml, secrets: inherit }
-  pages:        { if: github.repository_owner == 'myridia', uses: ./.github/workflows/pages.yml, secrets: inherit }
+  #pages:        { if: github.repository_owner == 'myridia', uses: ./.github/workflows/pages.yml, secrets: inherit }
