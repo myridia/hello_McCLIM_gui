@@ -36,13 +36,13 @@ Without a flag, the executable opens the McCLIM window.
 
 ## Build output
 
-Task 2 creates `dist/mcclim/` — but unlike Racket's distribution, this directory contains a single file: the ~22 MB SBCL executable. McCLIM and the Lisp runtime are saved into the image, so there is no `lib/` tree and no Quicklisp or SBCL install needed on the target machine.
+Task 2 creates `dist/mcclim/` with the ~22 MB SBCL executable and `DejaVuSans.ttf`. McCLIM and the Lisp runtime are saved into the image, so there is no `lib/` tree and no Quicklisp or SBCL install needed on the target machine. The font sits next to the executable, so the GUI renders without relying on system fonts; all text styles use that one regular face.
 
 | Project | Distribution | Size |
 |---------|--------------|------|
 | Racket | `bin/` executable + `lib/` runtime libraries | ~68 MB |
-| McCLIM / SBCL | one self-contained executable | ~22 MB |
+| McCLIM / SBCL | executable + one TTF font | ~22 MB |
 
-Copy `dist/mcclim/` (or just the executable inside it) to another machine with the same OS and CPU architecture and run it there.
+Copy `dist/mcclim/` to another machine with the same OS and CPU architecture and run the executable from that directory.
 
 Task 1 installs SBCL when missing, bootstraps Quicklisp into `~/quicklisp`, and loads McCLIM through Quicklisp. On Windows, use a POSIX shell such as Git Bash/MSYS/Cygwin.

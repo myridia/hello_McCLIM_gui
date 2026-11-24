@@ -18,4 +18,8 @@ sbcl --non-interactive \
 exe=bin/mcclim
 [ -e "$exe.exe" ] && exe="$exe.exe"
 cp "$exe" "dist/mcclim/${exe##*/}"
+ttf=$(find "$HOME/quicklisp/dists/quicklisp/software" -path '*/dejavu-fonts-ttf-*/ttf/DejaVuSans.ttf' -print -quit)
+if [ -n "$ttf" ]; then
+  cp "$ttf" dist/mcclim/DejaVuSans.ttf
+fi
 printf "ok    dist/mcclim\n"
