@@ -12,6 +12,7 @@ The window shows “Hello, world!” with a **Quit** button.
 
 ## Structure
 - `main.lisp` — GUI entry point; loads Quicklisp/McCLIM, selects the CLX or SDL2 backend, defines the application frame, and runs it
+- `sdl2-runtime.lisp` — loaded only when SDL2 is selected; defines `reset-sdl2-user-event-id` so `sdl2`/`plus-c` package names are never read by CLX builds
 - `sdl2.sh` — helper used by setup and the Windows workflow: pins McCLIM 1.0.0 in `~/quicklisp/local-projects` and downloads `SDL2.dll` into `vendor/sdl2/` on Windows
 - `ask.sh` — task runner menu
 - `ask.d/lib.sh` — shared task helpers
@@ -33,7 +34,7 @@ The window shows “Hello, world!” with a **Quit** button.
 
 Task 1 checks for `sbcl`, a downloader (`curl`/`wget`), and Quicklisp, installs SBCL when missing (`apt-get`, `dnf`, or `pacman` on Linux; Homebrew on macOS; Chocolatey, Scoop, or winget under a POSIX shell on Windows), bootstraps Quicklisp into `~/quicklisp`, runs `sdl2.sh`, and loads McCLIM. Task 2 reads `DejaVuSans.ttf` into a byte vector at build time, saves that vector with the executable via `sb-ext:save-lisp-and-die` in `bin/`, and copies the executable (and `SDL2.dll` on Windows) to `dist/mcclim/`. `main.lisp` writes the embedded bytes to `~/.cache/mcclim/DejaVuSans.ttf` and repoints `*families/faces*` there, so the target machine needs no font file. Task 3 runs `main.lisp` directly.
 
-On Windows `main.lisp` defaults to McCLIM's SDL2 backend (`:sdl2-soft`) and needs `SDL2.dll` beside the executable or on `PATH`; other platforms keep the CLX backend. Set `MCCLIM_BACKEND=sdl2` or `MCCLIM_BACKEND=clx` to override the default. `cl-sdl2` allocates `*user-event-id*` in foreign memory at load time, which a saved core cannot preserve, so `main()` calls `reset-sdl2-user-event-id` at runtime before creating a port. `sdl2.sh` converts a Windows-style `HOME` to a POSIX path for shell tools while leaving SBCL's environment unchanged. The Windows image uses `:compression nil` because the Windows SBCL has no zstd support; other platforms keep `:compression t`.
+On Windows `main.lisp` defaults to McCLIM's SDL2 backend (`:sdl2-soft`) and needs `SDL2.dll` beside the executable or on `PATH`; other platforms keep the CLX backend. Set `MCCLIM_BACKEND=sdl2` or `MCCLIM_BACKEND=clx` to override the default. `cl-sdl2` allocates `*user-event-id*` in foreign memory at load time, which a saved core cannot preserve, so `main()` calls `reset-sdl2-user-event-id` from `sdl2-runtime.lisp` at runtime before creating a port. The file is loaded only after `mcclim-sdl2` is quickloaded, so CLX builds on macOS, Linux, and FreeBSD never require the `sdl2` or `plus-c` packages. `sdl2.sh` converts a Windows-style `HOME` to a POSIX path for shell tools while leaving SBCL's environment unchanged. The Windows image uses `:compression nil` because the Windows SBCL has no zstd support; other platforms keep `:compression t`.
 
 Direct command:
 ```sh
