@@ -27,7 +27,6 @@ jobs:
       - name: Install
         run: |
           brew install sbcl curl
-          curl -fsSL https://beta.quicklisp.org/quicklisp.lisp -o /tmp/quicklisp.lisp
           sbcl --version
 
       - name: Checkout
@@ -36,21 +35,20 @@ jobs:
       - name: Compile
         run: |
           echo "Compile"
-          rm -rf bin dist/mcclim && mkdir -p bin dist/mcclim
-          sbcl --non-interactive \
-            --load /tmp/quicklisp.lisp \
-            --eval '(quicklisp-quickstart:install)' \
-            --eval '(sb-ext:exit)'
-          sbcl --non-interactive \
-            --eval '(defparameter cl-user::*auto-start* nil)' \
-            --load main.lisp \
-            --eval '(defparameter cl-user::*bundled-font-bytes* (with-open-file (s (cl-dejavu:font-pathname "DejaVuSans.ttf") :element-type (quote (unsigned-byte 8))) (let* ((n (file-length s)) (b (make-array n :element-type (quote (unsigned-byte 8))))) (read-sequence b s) b)))' \
-            --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
-          exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
+          sh ask.d/setup.sh
+          sh ask.d/build.sh
 
       - name: Rename
         run: |
           cp dist/mcclim/mcclim dist/mcclim/mcclim_macos_intel
+
+      - name: Check minimum macOS version
+        shell: bash
+        run: |
+          xcrun vtool -show-build dist/mcclim/mcclim_macos_intel
+          otool -L dist/mcclim/mcclim_macos_intel
+          minos=$(xcrun vtool -show-build dist/mcclim/mcclim_macos_intel | awk '/minos/ {print $2; exit} /version/ {print $2; exit}')
+          [ "$minos" = "11.0" ] || { echo "FAIL  macOS deployment target is $minos; expected 11.0"; exit 1; }
 
       - name: Package DMG
         shell: bash
@@ -80,7 +78,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: 'dist/mcclim/{mcclim_macos_intel,mcclim_macos_intel.dmg}'
+          file: 'dist/mcclim/{mcclim_macos_intel,mcclim_macos_intel.dmg,libzstd*.dylib}'
           tag: ${{ steps.release.outputs.tag }}
           overwrite: true
           file_glob: true
