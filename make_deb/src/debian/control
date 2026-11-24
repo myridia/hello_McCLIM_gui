@@ -1,0 +1,18 @@
+Source: mcclim
+Section: utils
+Priority: optional
+Maintainer: veto <info@myridia.com>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13)
+Standards-Version: 4.7.2
+Homepage: https://github.com/myridia/mcclim
+
+Package: mcclim
+Architecture: amd64
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: minimal McCLIM hello-world GUI
+ Shows "Hello, world!" in a McCLIM window with a Quit button.
+ The SBCL runtime, McCLIM and DejaVuSans.ttf are bundled in the executable.

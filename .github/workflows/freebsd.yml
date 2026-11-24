@@ -1,0 +1,53 @@
+name: FreeBSD
+on:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+  packages: none
+
+jobs:
+  Build:
+    runs-on: ubuntu-22.04
+    name: Build FreeBSD
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: VM FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          usesh: true
+          prepare: |
+            pkg install -y sbcl curl
+          run: |
+            echo "Compile"
+            curl -fsSL https://beta.quicklisp.org/quicklisp.lisp -o /tmp/quicklisp.lisp
+            rm -rf bin dist/mcclim && mkdir -p bin dist/mcclim
+            sbcl --non-interactive \
+              --load /tmp/quicklisp.lisp \
+              --eval '(quicklisp-quickstart:install)' \
+              --eval '(sb-ext:exit)'
+            sbcl --non-interactive \
+              --eval '(defparameter cl-user::*auto-start* nil)' \
+              --load main.lisp \
+              --eval '(defparameter cl-user::*bundled-font-bytes* (with-open-file (s (cl-dejavu:font-pathname "DejaVuSans.ttf") :element-type (quote (unsigned-byte 8))) (let* ((n (file-length s)) (b (make-array n :element-type (quote (unsigned-byte 8))))) (read-sequence b s) b)))' \
+              --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
+            exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
+
+      - name: Rename
+        run: |
+          cp dist/mcclim/mcclim dist/mcclim/mcclim_freebsd
+
+      - name: Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: 'dist/mcclim/mcclim_freebsd'
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
