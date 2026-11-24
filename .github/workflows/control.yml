@@ -5,6 +5,11 @@ on:
     tags:
       - '*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to upload to (leave empty to skip release)'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -15,11 +20,41 @@ permissions:
   id-token: write
 
 jobs:
-  #linux:      { if: github.repository_owner == 'myridia', uses: ./.github/workflows/linux.yml, secrets: inherit }
-  debian:     { if: github.repository_owner == 'myridia', uses: ./.github/workflows/debian.yml, secrets: inherit }
-  #windows:    { if: github.repository_owner == 'myridia', uses: ./.github/workflows/windows.yml, secrets: inherit }
-  #macos:      { if: github.repository_owner == 'myridia', uses: ./.github/workflows/macos.yml, secrets: inherit }
-  #macos_intel: { if: github.repository_owner == 'myridia', uses: ./.github/workflows/macos_intel.yml, secrets: inherit }
-  #freebsd:    { if: github.repository_owner == 'myridia', uses: ./.github/workflows/freebsd.yml, secrets: inherit }
+  #linux:
+  #  if: github.repository_owner == 'myridia'
+  #  uses: ./.github/workflows/linux.yml
+  #  secrets: inherit
+  #  with:
+  #    tag: ${{ inputs.tag }}
+  debian:
+    if: github.repository_owner == 'myridia'
+    uses: ./.github/workflows/debian.yml
+    secrets: inherit
+    with:
+      tag: ${{ inputs.tag }}
+  #windows:
+  #  if: github.repository_owner == 'myridia'
+  #  uses: ./.github/workflows/windows.yml
+  #  secrets: inherit
+  #  with:
+  #    tag: ${{ inputs.tag }}
+  #macos:
+  #  if: github.repository_owner == 'myridia'
+  #  uses: ./.github/workflows/macos.yml
+  #  secrets: inherit
+  #  with:
+  #    tag: ${{ inputs.tag }}
+  #macos_intel:
+  #  if: github.repository_owner == 'myridia'
+  #  uses: ./.github/workflows/macos_intel.yml
+  #  secrets: inherit
+  #  with:
+  #    tag: ${{ inputs.tag }}
+  #freebsd:
+  #  if: github.repository_owner == 'myridia'
+  #  uses: ./.github/workflows/freebsd.yml
+  #  secrets: inherit
+  #  with:
+  #    tag: ${{ inputs.tag }}
   #msix:       { if: github.repository_owner == 'myridia', uses: ./.github/workflows/msix.yml, secrets: inherit }
   #pages:        { if: github.repository_owner == 'myridia', uses: ./.github/workflows/pages.yml, secrets: inherit }
