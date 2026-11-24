@@ -109,7 +109,7 @@
 
 (defun main ()
   (when (eq cl-user::*backend* :sdl2)
-    (cl-user::reset-sdl2-user-event-id))
+    (funcall (symbol-function (intern "RESET-SDL2-USER-EVENT-ID" "CL-USER"))))
   (if (no-window-p)
       (command-line-main)
       (progn

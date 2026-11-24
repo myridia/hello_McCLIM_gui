@@ -31,7 +31,7 @@ exe=bin/mcclim
 [ -e "$exe.exe" ] && exe="$exe.exe"
 case "$(uname -s)" in
   Darwin*)
-    if command -v otool >/dev/null 2>&1 && command -v install_name_tool >/dev/null 2>&1; then
+    if command -v otool >/dev/null 2>&1; then
       zstd_dep=$(otool -L "$exe" 2>/dev/null | awk '/libzstd/ {print $1; exit}')
       if [ -n "$zstd_dep" ]; then
         zstd_name=${zstd_dep##*/}
@@ -40,6 +40,9 @@ case "$(uname -s)" in
           [ -f "$zstd_src" ] || continue
           cp "$zstd_src" "dist/mcclim/$zstd_name"
           zstd_copy="dist/mcclim/$zstd_name"
+          if command -v codesign >/dev/null 2>&1; then
+            codesign --remove-signature "$zstd_copy" >/dev/null 2>&1 || true
+          fi
           if command -v xcrun >/dev/null 2>&1; then
             zstd_target="$zstd_copy.macos-target"
             if xcrun vtool -show-build "$zstd_copy" 2>/dev/null | grep -q 'LC_BUILD_VERSION'; then
@@ -55,10 +58,12 @@ case "$(uname -s)" in
               codesign --force --sign - "$zstd_copy" >/dev/null 2>&1 || true
             fi
           fi
-          install_name_tool -change "$zstd_dep" "@loader_path/$zstd_name" "$exe"
           break
         done
       fi
+    fi
+    if command -v codesign >/dev/null 2>&1; then
+      codesign --remove-signature "$exe" >/dev/null 2>&1 || true
     fi
     if command -v xcrun >/dev/null 2>&1; then
       target="$exe.macos-target"

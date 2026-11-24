@@ -47,6 +47,7 @@ jobs:
         run: |
           xcrun vtool -show-build dist/mcclim/mcclim_macos
           otool -L dist/mcclim/mcclim_macos
+          ls -l dist/mcclim/libzstd*.dylib
           minos=$(xcrun vtool -show-build dist/mcclim/mcclim_macos | awk '/minos/ {print $2; exit} /version/ {print $2; exit}')
           [ "$minos" = "11.0" ] || { echo "FAIL  macOS deployment target is $minos; expected 11.0"; exit 1; }
 
