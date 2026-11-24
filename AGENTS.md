@@ -20,6 +20,7 @@ The window shows “Hello, world!” with a **Quit** button.
 - `README.md` — project title, logo, and commands
 - `AGENTS.md` — this project guide
 - `LICENSE` — project license
+- `make_deb/` — Debian packaging (`dpkg-buildpackage`) for the prebuilt executable; `make_deb/src/mcclim` is copied in by the Debian workflow
 - `.gitignore` — Common Lisp and build-output ignore rules
 - `mcclim.svg` — README logo; also used by the project page
 - `pages/public/` — GitHub Pages site (`index.html`, `style.css`, `img/mcclim.svg`), deployed by `pages.yml`
@@ -44,8 +45,13 @@ Built executable with no window:
 `-nw`, `--nw`, and `--no-window` print `Hello, world!` to stdout instead of opening the McCLIM window.
 
 ## Workflows
-- `.github/workflows/control.yml` — single build gate copied from couchy; push to `main`, any tag, and manual dispatch. `linux` and `pages` are enabled; the other build lines are commented out.
-- `.github/workflows/linux.yml` — `workflow_call` + `workflow_dispatch`. Install step installs SBCL/curl and bootstraps Quicklisp with McCLIM, then builds via `ask.d/build.sh`, smoke-tests the `-nw` output, uploads the single `mcclim_linux` binary to the release with `DejaVuSans.ttf` embedded in the image. It deliberately omits `ql:add-to-init-file` — that call prompts for Enter and fails on CI's closed stdin; `main.lisp` loads `~/quicklisp/setup.lisp` itself. `ask.d/setup.sh` writes the same init block to `~/.sbclrc` itself instead of calling the prompt.
+- `.github/workflows/control.yml` — single build gate copied from couchy; push to `main`, any tag, and manual dispatch. `linux`, `debian`, `windows`, `macos`, `macos_intel`, and `freebsd` are enabled; `msix` and `pages` are commented out.
+- `.github/workflows/linux.yml` — `workflow_call` + `workflow_dispatch`. Install step installs SBCL/curl and bootstraps Quicklisp with McCLIM, then builds inline, smoke-tests the `-nw` output, uploads the single `mcclim_linux` binary to the release with `DejaVuSans.ttf` embedded in the image. It deliberately omits `ql:add-to-init-file` — that call prompts for Enter and fails on CI's closed stdin; `main.lisp` loads `~/quicklisp/setup.lisp` itself. `ask.d/setup.sh` writes the same init block to `~/.sbclrc` itself instead of calling the prompt.
+- `.github/workflows/debian.yml` — `workflow_call` + `workflow_dispatch`. Builds the executable, copies it into `make_deb/src/`, runs `dpkg-buildpackage -us -uc -b`, and uploads `mcclim_0.1.0-1_amd64.deb`.
+- `.github/workflows/macos.yml` — `workflow_call` + `workflow_dispatch`. Builds on `macos-15`, uploads `mcclim_macos`.
+- `.github/workflows/macos_intel.yml` — `workflow_call` + `workflow_dispatch`. Builds on `macos-15-intel`, uploads `mcclim_macos_intel`.
+- `.github/workflows/windows.yml` — `workflow_call` + `workflow_dispatch`. Installs SBCL with Chocolatey, builds in Git Bash, uploads `mcclim_windows.exe`.
+- `.github/workflows/freebsd.yml` — `workflow_call` + `workflow_dispatch`. Builds in a FreeBSD VM, uploads `mcclim_freebsd`.
 - `.github/workflows/pages.yml` — `workflow_call` + `workflow_dispatch`, deploys `pages/public` to GitHub Pages via `configure-pages` / `upload-pages-artifact` / `deploy-pages`. The `myridia` guard lives only in `control.yml`.
 
 ## Conventions

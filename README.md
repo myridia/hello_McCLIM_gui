@@ -43,6 +43,6 @@ Task 2 creates `dist/mcclim/` with a single ~22 MB SBCL executable. McCLIM, the 
 | Racket | `bin/` executable + `lib/` runtime libraries | ~68 MB |
 | McCLIM / SBCL | one self-contained executable | ~22 MB |
 
-Copy the executable to another machine with the same OS and CPU architecture and run it there; no companion font file is needed.
+Copy the executable to another machine with the same OS and CPU architecture and run it there; no companion font file is needed. The Debian workflow also packages it as `mcclim_0.1.0-1_amd64.deb` via `make_deb/`.
 
 Task 1 installs SBCL when missing, bootstraps Quicklisp into `~/quicklisp`, and loads McCLIM through Quicklisp. On Windows, use a POSIX shell such as Git Bash/MSYS/Cygwin.
