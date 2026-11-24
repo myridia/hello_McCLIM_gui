@@ -9,6 +9,7 @@ on:
       tag:
         description: 'Release tag to upload to (leave empty to skip release)'
         required: false
+        default: 'v0.1.0'
         type: string
 
 permissions:
