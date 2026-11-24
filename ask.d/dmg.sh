@@ -44,8 +44,9 @@ ditto "$exe" "$app/Contents/MacOS/mcclim"
 cat > "$app/Contents/MacOS/mcclim-launcher" <<'EOF'
 #!/bin/sh
 dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+[ -n "$DISPLAY" ] || DISPLAY=:0
 DYLD_LIBRARY_PATH="$dir${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
-export DYLD_LIBRARY_PATH
+export DISPLAY DYLD_LIBRARY_PATH
 exec "$dir/mcclim" "$@"
 EOF
 exe_dir=${exe%/*}
