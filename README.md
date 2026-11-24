@@ -36,13 +36,13 @@ Without a flag, the executable opens the McCLIM window.
 
 ## Build output
 
-Task 2 creates `dist/mcclim/` with the ~22 MB SBCL executable and `DejaVuSans.ttf`. McCLIM and the Lisp runtime are saved into the image, so there is no `lib/` tree and no Quicklisp or SBCL install needed on the target machine. The font sits next to the executable, so the GUI renders without relying on system fonts; all text styles use that one regular face.
+Task 2 creates `dist/mcclim/` with a single ~22 MB SBCL executable. McCLIM, the Lisp runtime, and `DejaVuSans.ttf` are saved into the image, so there is no `lib/` tree and no SBCL, Quicklisp, or system font install needed on the target machine. On each GUI run the embedded font is extracted to `~/.cache/mcclim/DejaVuSans.ttf`; all text styles use that one regular face.
 
 | Project | Distribution | Size |
 |---------|--------------|------|
 | Racket | `bin/` executable + `lib/` runtime libraries | ~68 MB |
-| McCLIM / SBCL | executable + one TTF font | ~22 MB |
+| McCLIM / SBCL | one self-contained executable | ~22 MB |
 
-Copy `dist/mcclim/` to another machine with the same OS and CPU architecture and run the executable from that directory.
+Copy the executable to another machine with the same OS and CPU architecture and run it there; no companion font file is needed.
 
 Task 1 installs SBCL when missing, bootstraps Quicklisp into `~/quicklisp`, and loads McCLIM through Quicklisp. On Windows, use a POSIX shell such as Git Bash/MSYS/Cygwin.
