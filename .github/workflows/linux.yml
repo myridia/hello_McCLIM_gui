@@ -29,7 +29,6 @@ jobs:
       - name: Compile
         run: |
           echo "Compile"
-          cd mcclim
           rm -rf bin dist/mcclim && mkdir -p bin dist/mcclim
           sbcl --non-interactive \
             --load /tmp/quicklisp.lisp \
