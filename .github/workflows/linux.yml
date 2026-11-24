@@ -40,6 +40,8 @@ jobs:
             --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
           find . -maxdepth 2
           exe=bin/mcclim; [ -e "$exe.exe" ] && exe="$exe.exe"; cp "$exe" "dist/mcclim/${exe##*/}"
+          ttf=$(find "$HOME/quicklisp/dists/quicklisp/software" -path '*/dejavu-fonts-ttf-*/ttf/DejaVuSans.ttf' -print -quit)
+          cp "$ttf" dist/mcclim/DejaVuSans.ttf
 
       - name: Test
         run: |
@@ -49,12 +51,13 @@ jobs:
       - name: Rename
         run: |
           cp dist/mcclim/mcclim dist/mcclim/mcclim_linux
+          cd dist/mcclim && zip mcclim_linux.zip mcclim_linux DejaVuSans.ttf
 
       - name: Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: 'dist/mcclim/mcclim_linux'
+          file: 'dist/mcclim/mcclim_linux.zip'
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true

@@ -9,6 +9,17 @@
 
 (in-package :clim-user)
 
+(defun use-bundled-font ()
+  (let* ((exe (first sb-ext:*posix-argv*))
+         (font (merge-pathnames "DejaVuSans.ttf"
+                                (make-pathname :name nil :type nil :defaults exe))))
+    (when (probe-file font)
+      (setf mcclim-truetype::*truetype-font-path*
+            (make-pathname :name nil :type nil :defaults font)
+            mcclim-truetype::*families/faces*
+            (loop for entry in mcclim-truetype::*families/faces*
+                  collect (cons (car entry) font))))))
+
 (define-application-frame hello-frame ()
   ()
   (:panes
@@ -43,6 +54,7 @@
   (finish-output))
 
 (defun main ()
+  (use-bundled-font)
   (if (no-window-p)
       (command-line-main)
       (run-frame-top-level (make-application-frame 'hello-frame))))
