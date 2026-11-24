@@ -55,7 +55,45 @@ jobs:
       - name: Ad-hoc sign
         run: |
           codesign --force --sign - --identifier com.myridia.mcclim.macos --timestamp=none dist/mcclim/mcclim_macos
-          codesign --verify --strict --verbose=2 dist/mcclim/mcclim_macos
+          codesign --verify --verbose=2 dist/mcclim/mcclim_macos
+
+      - name: Package DMG
+        run: |
+          rm -rf mcclim_macos.app
+          mkdir -p mcclim_macos.app/Contents/MacOS
+          cp dist/mcclim/mcclim_macos mcclim_macos.app/Contents/MacOS/mcclim
+          cat > mcclim_macos.app/Contents/Info.plist <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleName</key>
+            <string>McCLIM</string>
+            <key>CFBundleDisplayName</key>
+            <string>McCLIM</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.myridia.mcclim</string>
+            <key>CFBundleExecutable</key>
+            <string>mcclim</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleShortVersionString</key>
+            <string>0.1.0</string>
+            <key>CFBundleVersion</key>
+            <string>1</string>
+            <key>NSHighResolutionCapable</key>
+            <true/>
+          </dict>
+          </plist>
+          EOF
+          chmod +x mcclim_macos.app/Contents/MacOS/mcclim
+          codesign --force --sign - --identifier com.myridia.mcclim.executable --timestamp=none mcclim_macos.app/Contents/MacOS/mcclim
+          codesign --force --sign - --identifier com.myridia.mcclim --timestamp=none mcclim_macos.app
+          codesign --verify --deep --verbose=2 mcclim_macos.app
+          hdiutil create -volname "mcclim_macos" -srcfolder "mcclim_macos.app" -ov -format UDZO "dist/mcclim/mcclim_macos.dmg"
+          codesign --force --sign - --timestamp=none dist/mcclim/mcclim_macos.dmg
+          codesign --verify --verbose=2 dist/mcclim/mcclim_macos.dmg
+          hdiutil verify dist/mcclim/mcclim_macos.dmg
 
       - name: Resolve release tag
         id: release
@@ -80,7 +118,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: 'dist/mcclim/mcclim_macos'
+          file: 'dist/mcclim/{mcclim_macos,mcclim_macos.dmg}'
           tag: ${{ steps.release.outputs.tag }}
           overwrite: true
           file_glob: true
