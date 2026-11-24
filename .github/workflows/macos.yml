@@ -55,8 +55,9 @@ jobs:
       - name: Package DMG
         run: |
           rm -rf mcclim_macos.app
-          mkdir -p mcclim_macos.app/Contents/MacOS
-          cp dist/mcclim/mcclim_macos mcclim_macos.app/Contents/MacOS/mcclim
+          mkdir -p mcclim_macos.app/Contents/MacOS mcclim_macos.app/Contents/Resources
+          ditto dist/mcclim/mcclim_macos mcclim_macos.app/Contents/MacOS/mcclim
+          printf 'APPL????' > mcclim_macos.app/Contents/PkgInfo
           cat > mcclim_macos.app/Contents/Info.plist <<'EOF'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -72,6 +73,12 @@ jobs:
             <string>mcclim</string>
             <key>CFBundlePackageType</key>
             <string>APPL</string>
+            <key>CFBundleSignature</key>
+            <string>????</string>
+            <key>CFBundleDevelopmentRegion</key>
+            <string>en</string>
+            <key>LSMinimumSystemVersion</key>
+            <string>11.0</string>
             <key>CFBundleShortVersionString</key>
             <string>0.1.0</string>
             <key>CFBundleVersion</key>
@@ -81,11 +88,17 @@ jobs:
           </dict>
           </plist>
           EOF
-          chmod +x mcclim_macos.app/Contents/MacOS/mcclim
+          chmod 755 mcclim_macos.app/Contents/MacOS/mcclim
           plutil -lint mcclim_macos.app/Contents/Info.plist
           test -x mcclim_macos.app/Contents/MacOS/mcclim
           hdiutil create -volname "mcclim_macos" -srcfolder "mcclim_macos.app" -ov -format UDZO "dist/mcclim/mcclim_macos.dmg"
           hdiutil verify dist/mcclim/mcclim_macos.dmg
+          mountpoint=$(mktemp -d "${TMPDIR:-/tmp}/mcclim-arm-dmg.XXXXXX")
+          hdiutil attach -nobrowse -noautoopen -mountpoint "$mountpoint" "dist/mcclim/mcclim_macos.dmg"
+          plutil -lint "$mountpoint/mcclim_macos.app/Contents/Info.plist"
+          test -x "$mountpoint/mcclim_macos.app/Contents/MacOS/mcclim"
+          hdiutil detach "$mountpoint"
+          rmdir "$mountpoint"
 
       - name: Resolve release tag
         id: release

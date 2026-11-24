@@ -109,13 +109,18 @@ jobs:
         run: |
           exe=dist/mcclim/mcclim
           [ -e "$exe.exe" ] && exe="$exe.exe"
-          cp "$exe" dist/mcclim/mcclim_windows.exe
+          cp "$exe" dist/mcclim/mcclim_windows_raw.exe
+
+      - name: Build launcher
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File .github/scripts/make-windows-launcher.ps1 -Core dist/mcclim/mcclim_windows_raw.exe -Dll dist/mcclim/SDL2.dll -Output dist/mcclim/mcclim_windows.exe
 
       - name: Package zip
-        shell: bash
+        shell: powershell
         run: |
-          win_dir=$(cygpath -w "$PWD/dist/mcclim")
-          powershell.exe -NoProfile -Command "Compress-Archive -Force -Path '$win_dir\mcclim_windows.exe','$win_dir\SDL2.dll' -DestinationPath '$win_dir\mcclim_windows.zip'"
+          $dir = Join-Path $env:GITHUB_WORKSPACE 'dist\mcclim'
+          Compress-Archive -Force -Path (Join-Path $dir 'mcclim_windows_raw.exe'),(Join-Path $dir 'SDL2.dll') -DestinationPath (Join-Path $dir 'mcclim_windows.zip')
 
       - name: Resolve release tag
         id: release
@@ -140,7 +145,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: 'dist/mcclim/{mcclim_windows.exe,SDL2.dll,mcclim_windows.zip}'
+          file: 'dist/mcclim/{mcclim_windows.exe,mcclim_windows_raw.exe,SDL2.dll,mcclim_windows.zip}'
           tag: ${{ steps.release.outputs.tag }}
           overwrite: true
           file_glob: true
