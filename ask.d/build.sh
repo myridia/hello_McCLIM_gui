@@ -10,7 +10,9 @@ enter
 rm -rf bin dist/mcclim
 mkdir -p bin dist/mcclim
 
-sbcl --non-interactive \
+ttf=$(find "$HOME/quicklisp/dists/quicklisp/software" -path '*/dejavu-fonts-ttf-*/ttf/DejaVuSans.ttf' -print -quit)
+MCCLIM_FONT="$ttf" sbcl --non-interactive \
+  --eval '(defparameter cl-user::*bundled-font-bytes* (with-open-file (s (sb-ext:posix-getenv "MCCLIM_FONT") :element-type (quote (unsigned-byte 8))) (let* ((n (file-length s)) (b (make-array n :element-type (quote (unsigned-byte 8))))) (read-sequence b s) b)))' \
   --eval '(defparameter cl-user::*auto-start* nil)' \
   --load main.lisp \
   --eval '(sb-ext:save-lisp-and-die "bin/mcclim" :toplevel (function clim-user:main) :executable t :compression t)'
@@ -18,8 +20,4 @@ sbcl --non-interactive \
 exe=bin/mcclim
 [ -e "$exe.exe" ] && exe="$exe.exe"
 cp "$exe" "dist/mcclim/${exe##*/}"
-ttf=$(find "$HOME/quicklisp/dists/quicklisp/software" -path '*/dejavu-fonts-ttf-*/ttf/DejaVuSans.ttf' -print -quit)
-if [ -n "$ttf" ]; then
-  cp "$ttf" dist/mcclim/DejaVuSans.ttf
-fi
 printf "ok    dist/mcclim\n"

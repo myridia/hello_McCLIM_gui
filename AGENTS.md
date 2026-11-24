@@ -15,7 +15,7 @@ The window shows “Hello, world!” with a **Quit** button.
 - `ask.sh` — task runner menu
 - `ask.d/lib.sh` — shared task helpers
 - `ask.d/setup.sh` — task 1: check/install SBCL, bootstrap Quicklisp, load McCLIM
-- `ask.d/build.sh` — task 2: save a self-contained SBCL executable and copy `DejaVuSans.ttf` into `dist/mcclim/`
+- `ask.d/build.sh` — task 2: embed `DejaVuSans.ttf` in the SBCL image and save a self-contained executable
 - `ask.d/run.sh` — task 3: run with `sbcl --script main.lisp`
 - `README.md` — project title, logo, and commands
 - `AGENTS.md` — this project guide
@@ -29,7 +29,7 @@ The window shows “Hello, world!” with a **Quit** button.
 ./ask.sh
 ```
 
-Task 1 checks for `sbcl`, a downloader (`curl`/`wget`), and Quicklisp, installs SBCL when missing (`apt-get`, `dnf`, or `pacman` on Linux; Homebrew on macOS; Chocolatey, Scoop, or winget under a POSIX shell on Windows), bootstraps Quicklisp into `~/quicklisp`, and loads McCLIM. Task 2 uses `sb-ext:save-lisp-and-die` to build a self-contained executable in `bin/`, copies it to `dist/mcclim/`, and copies `DejaVuSans.ttf` there too. `main.lisp` repoints `*families/faces*` to that bundled font at runtime, so the executable does not depend on fonts on the target machine. Task 3 runs `main.lisp` directly.
+Task 1 checks for `sbcl`, a downloader (`curl`/`wget`), and Quicklisp, installs SBCL when missing (`apt-get`, `dnf`, or `pacman` on Linux; Homebrew on macOS; Chocolatey, Scoop, or winget under a POSIX shell on Windows), bootstraps Quicklisp into `~/quicklisp`, and loads McCLIM. Task 2 reads `DejaVuSans.ttf` into a byte vector at build time, saves that vector with the executable via `sb-ext:save-lisp-and-die` in `bin/`, and copies the executable to `dist/mcclim/`. `main.lisp` writes the embedded bytes to `~/.cache/mcclim/DejaVuSans.ttf` and repoints `*families/faces*` there, so the target machine needs no font file. Task 3 runs `main.lisp` directly.
 
 Direct command:
 ```sh
@@ -45,7 +45,7 @@ Built executable with no window:
 
 ## Workflows
 - `.github/workflows/control.yml` — single build gate copied from couchy; push to `main`, any tag, and manual dispatch. `linux` and `pages` are enabled; the other build lines are commented out.
-- `.github/workflows/linux.yml` — `workflow_call` + `workflow_dispatch`. Install step installs SBCL/curl and bootstraps Quicklisp with McCLIM, then builds via `ask.d/build.sh`, smoke-tests the `-nw` output, zips `mcclim_linux` with `DejaVuSans.ttf`, and uploads `mcclim_linux.zip` to the release. It deliberately omits `ql:add-to-init-file` — that call prompts for Enter and fails on CI's closed stdin; `main.lisp` loads `~/quicklisp/setup.lisp` itself. `ask.d/setup.sh` writes the same init block to `~/.sbclrc` itself instead of calling the prompt.
+- `.github/workflows/linux.yml` — `workflow_call` + `workflow_dispatch`. Install step installs SBCL/curl and bootstraps Quicklisp with McCLIM, then builds via `ask.d/build.sh`, smoke-tests the `-nw` output, uploads the single `mcclim_linux` binary to the release with `DejaVuSans.ttf` embedded in the image. It deliberately omits `ql:add-to-init-file` — that call prompts for Enter and fails on CI's closed stdin; `main.lisp` loads `~/quicklisp/setup.lisp` itself. `ask.d/setup.sh` writes the same init block to `~/.sbclrc` itself instead of calling the prompt.
 - `.github/workflows/pages.yml` — `workflow_call` + `workflow_dispatch`, deploys `pages/public` to GitHub Pages via `configure-pages` / `upload-pages-artifact` / `deploy-pages`. The `myridia` guard lives only in `control.yml`.
 
 ## Conventions

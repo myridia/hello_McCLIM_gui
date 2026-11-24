@@ -1,4 +1,5 @@
 (defvar cl-user::*auto-start* t)
+(defvar cl-user::*bundled-font-bytes* nil)
 
 (let ((setup (merge-pathnames "quicklisp/setup.lisp" (user-homedir-pathname))))
   (if (probe-file setup)
@@ -10,12 +11,16 @@
 (in-package :clim-user)
 
 (defun use-bundled-font ()
-  (let* ((exe (first sb-ext:*posix-argv*))
-         (font (merge-pathnames "DejaVuSans.ttf"
-                                (make-pathname :name nil :type nil :defaults exe))))
-    (when (probe-file font)
-      (setf mcclim-truetype::*truetype-font-path*
-            (make-pathname :name nil :type nil :defaults font)
+  (when cl-user::*bundled-font-bytes*
+    (let* ((dir (merge-pathnames ".cache/mcclim/" (user-homedir-pathname)))
+           (font (merge-pathnames "DejaVuSans.ttf" dir)))
+      (ensure-directories-exist dir)
+      (with-open-file (s font :direction :output
+                             :element-type '(unsigned-byte 8)
+                             :if-exists :supersede
+                             :if-does-not-exist :create)
+        (write-sequence cl-user::*bundled-font-bytes* s))
+      (setf mcclim-truetype::*truetype-font-path* dir
             mcclim-truetype::*families/faces*
             (loop for entry in mcclim-truetype::*families/faces*
                   collect (cons (car entry) font))))))
