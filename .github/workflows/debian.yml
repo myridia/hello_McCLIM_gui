@@ -48,7 +48,15 @@ jobs:
           cd make_deb/src
           dpkg-buildpackage -us -uc -b
           cd ../../
-          dpkg-deb -c make_deb/mcclim_0.1.0-1_amd64.deb
+          deb=make_deb/mcclim_0.1.0-1_amd64.deb
+          dpkg-deb -c "$deb"
+          dpkg-deb -x "$deb" /tmp/mcclim-deb-check
+          ls -lh /tmp/mcclim-deb-check/usr/bin/mcclim
+          size=$(stat -c%s /tmp/mcclim-deb-check/usr/bin/mcclim)
+          if [ "$size" -lt 10000000 ]; then
+            echo "ERROR: packaged mcclim is only $size bytes (SBCL core was stripped)"
+            exit 1
+          fi
           tree make_deb
 
       - name: Release
