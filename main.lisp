@@ -1,6 +1,7 @@
 (defvar cl-user::*auto-start* t)
 (defvar cl-user::*bundled-font-bytes* nil)
 
+
 (let ((setup (merge-pathnames "quicklisp/setup.lisp" (user-homedir-pathname))))
   (if (probe-file setup)
       (load setup)
@@ -38,9 +39,9 @@
            (font (merge-pathnames "DejaVuSans.ttf" dir)))
       (ensure-directories-exist dir)
       (with-open-file (s font :direction :output
-                             :element-type '(unsigned-byte 8)
-                             :if-exists :supersede
-                             :if-does-not-exist :create)
+                         :element-type '(unsigned-byte 8)
+                         :if-exists :supersede
+                         :if-does-not-exist :create)
         (write-sequence cl-user::*bundled-font-bytes* s))
       (setf mcclim-truetype::*truetype-font-path* dir
             mcclim-truetype::*families/faces*
@@ -57,8 +58,8 @@
    (quit-button :push-button
                 :label "Quit"
                 :activate-callback (lambda (&rest args)
-                            (declare (ignore args))
-                            (frame-exit *application-frame*))))
+				     (declare (ignore args))
+				     (frame-exit *application-frame*))))
   (:layouts
    (default (vertically () message quit-button))))
 
