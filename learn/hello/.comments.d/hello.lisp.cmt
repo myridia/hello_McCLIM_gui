@@ -1,0 +1,11 @@
+# Commentor comments for hello/hello.lisp
+# This file pairs with the source file under .comments.d/<source>.cmt.
+# Marker: @N or @N-M, optionally followed by [a=start anchor,b=end anchor].
+# Get Commentor: https://commentor.myridia.com/
+
+@1
+A hello: returns the string "hi" and prints nothing.
+
+@5
+The entry point: prints hello's return value, one line.
+

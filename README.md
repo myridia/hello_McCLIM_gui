@@ -39,7 +39,7 @@ Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dm
 
 The executables are built on newer macOS runners, but `ask.d/build.sh` lowers their deployment target to macOS 11 Big Sur, the oldest version shared by Intel and Apple silicon Macs. CI verifies the value before packaging, and the `.app` plist declares the same minimum.
 
-To test the exact bundle and DMG locally on a Mac, run `./ask.sh` and select tasks 1, 2, and 4. Task 4 uses the same `ask.d/dmg.sh` script as both macOS workflows and writes `dist/mcclim/mcclim_macos_intel.dmg` on Intel and `dist/mcclim/mcclim_macos.dmg` on Apple silicon. The build steps and packaging script are now the same locally and in CI. The remaining difference is download quarantine: a file created locally has no quarantine attribute, while the same DMG downloaded from a release does.
+To test the exact bundle and DMG locally on a Mac, run `./ask.sh` and select tasks 1 and 4; task 4 runs task 2 first. Task 4 uses the same `ask.d/dmg.sh` script as both macOS workflows and writes `dist/mcclim/mcclim_macos_intel.dmg` on Intel and `dist/mcclim/mcclim_macos.dmg` on Apple silicon. The build steps and packaging script are now the same locally and in CI. The remaining difference is download quarantine: a file created locally has no quarantine attribute, while the same DMG downloaded from a release does.
 
 1. Download the DMG for your Mac.
 2. Clear quarantine from the downloaded DMG **before mounting it**, then verify it:
@@ -51,7 +51,7 @@ To test the exact bundle and DMG locally on a Mac, run `./ask.sh` and select tas
    ```
 
    For Apple silicon, use `mcclim_macos.dmg` instead. If `xattr` reports no attribute, that is fine.
-3. Open the DMG and drag `mcclim_macos.app` (Apple silicon) or `mcclim_macos_intel.app` (Intel) to `/Applications`.
+3. Open the DMG and drag `mcclim_macos.app` (Apple silicon) or `mcclim_macos_intel.app` (Intel) onto the included `Applications` shortcut.
 4. Eject the disk image.
 5. Clear quarantine on the copied app, then open McCLIM from `/Applications`:
 
@@ -81,15 +81,15 @@ Use `/Applications/mcclim_macos.app` for Apple silicon. If macOS still prompts, 
 | ID | Task |
 |----|------|
 | 1 | Setup - check and install requirements (SBCL, Quicklisp, McCLIM; Linux, macOS, Windows) |
-| 2 | Build - save a self-contained SBCL executable |
+| 2 | Build - clean first, then save a self-contained SBCL executable |
 | 3 | Run - `sbcl --script main.lisp` |
-| 4 | Package - build a macOS `.app` and DMG from the task 2 executable |
+| 4 | Package - build first, then create a macOS `.app` and DMG |
 | 5 | Clean - remove `dist/`, `bin/`, and macOS `.app` bundles |
 | 0 | Exit |
 
 ## Build output
 
-Task 2 creates `dist/mcclim/` with a ~22 MB SBCL executable (plus `SDL2.dll` on Windows and `libzstd.1.dylib` on macOS). McCLIM, the Lisp runtime, and `DejaVuSans.ttf` are saved into the image, so there is no `lib/` tree and no SBCL, Quicklisp, or system font install needed on the target machine. On each GUI run the embedded font is extracted to `~/.cache/mcclim/DejaVuSans.ttf`; all text styles use that one regular face. Task 5 removes `dist/`, `bin/`, and the macOS `.app` bundles created by task 4.
+Task 2 creates `dist/mcclim/` with a ~22 MB SBCL executable (plus `SDL2.dll` on Windows and `libzstd.1.dylib` on macOS). McCLIM, the Lisp runtime, and `DejaVuSans.ttf` are saved into the image, so there is no `lib/` tree and no SBCL, Quicklisp, or system font install needed on the target machine. On each GUI run the embedded font is extracted to `~/.cache/mcclim/DejaVuSans.ttf`; all text styles use that one regular face. Task 2 always runs task 5 first, and local task 4 runs task 2 before packaging. CI instead sets `MCCLIM_DMG_SOURCE` to its prebuilt binary so the packaging step does not delete it. Task 5 removes `dist/`, `bin/`, and the macOS `.app` bundles created by task 4.
 
 | Project | Distribution | Size |
 |---------|--------------|------|

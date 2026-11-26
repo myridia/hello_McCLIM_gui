@@ -17,6 +17,9 @@ esac
 
 exe=${MCCLIM_DMG_SOURCE:-dist/mcclim/mcclim}
 [ -e "$exe.exe" ] && exe="$exe.exe"
+if [ -z "${MCCLIM_DMG_SOURCE:-}" ]; then
+  "$ROOT/ask.d/build.sh"
+fi
 if [ ! -x "$exe" ]; then
   printf "FAIL  build first with task 2\n"
   exit 1
@@ -91,17 +94,24 @@ chmod 755 "$app/Contents/MacOS/mcclim" "$app/Contents/MacOS/mcclim-launcher"
 plutil -lint "$app/Contents/Info.plist"
 test -x "$app/Contents/MacOS/mcclim"
 test -x "$app/Contents/MacOS/mcclim-launcher"
-hdiutil create -volname "mcclim_macos" -srcfolder "$app" -ov -format UDZO "$dmg"
+
+stage=$(mktemp -d "${TMPDIR:-/tmp}/mcclim-dmg-stage.XXXXXX")
+trap 'rm -rf "$stage"' EXIT
+ditto "$app" "$stage/$app"
+ln -s /Applications "$stage/Applications"
+hdiutil create -volname "mcclim_macos" -srcfolder "$stage" -ov -format UDZO "$dmg"
 hdiutil verify "$dmg"
 
 mountpoint=$(mktemp -d "${TMPDIR:-/tmp}/mcclim-dmg.XXXXXX")
-trap 'hdiutil detach "$mountpoint" >/dev/null 2>&1 || true; rmdir "$mountpoint" 2>/dev/null || true' EXIT
+trap 'hdiutil detach "$mountpoint" >/dev/null 2>&1 || true; rmdir "$mountpoint" 2>/dev/null || true; rm -rf "$stage"' EXIT
 hdiutil attach -nobrowse -noautoopen -mountpoint "$mountpoint" "$dmg"
 plutil -lint "$mountpoint/$app/Contents/Info.plist"
 test -x "$mountpoint/$app/Contents/MacOS/mcclim"
 test -x "$mountpoint/$app/Contents/MacOS/mcclim-launcher"
+test -L "$mountpoint/Applications"
 hdiutil detach "$mountpoint"
 rmdir "$mountpoint"
+rm -rf "$stage"
 trap - EXIT
 
 printf "ok    %s\n" "$dmg"

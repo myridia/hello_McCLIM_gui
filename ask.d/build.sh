@@ -7,7 +7,7 @@
 set -e
 enter
 
-rm -rf bin dist/mcclim
+"$ROOT/ask.d/clean.sh"
 mkdir -p bin dist/mcclim
 
 case "$(uname -s)" in
@@ -38,8 +38,10 @@ case "$(uname -s)" in
         zstd_prefix=$(brew --prefix zstd 2>/dev/null || true)
         for zstd_src in "$zstd_prefix/lib/$zstd_name" "/usr/local/opt/zstd/lib/$zstd_name" "/opt/homebrew/opt/zstd/lib/$zstd_name"; do
           [ -f "$zstd_src" ] || continue
-          cp "$zstd_src" "dist/mcclim/$zstd_name"
           zstd_copy="dist/mcclim/$zstd_name"
+          rm -f "$zstd_copy"
+          cp -f "$zstd_src" "$zstd_copy"
+          chmod 755 "$zstd_copy"
           if command -v codesign >/dev/null 2>&1; then
             codesign --remove-signature "$zstd_copy" >/dev/null 2>&1 || true
           fi
@@ -50,7 +52,8 @@ case "$(uname -s)" in
             elif xcrun vtool -show-build "$zstd_copy" 2>/dev/null | grep -q 'LC_VERSION_MIN_MACOSX'; then
               xcrun vtool -set-version-min macos 11.0 11.0 -replace -output "$zstd_target" "$zstd_copy"
             else
-              cp "$zstd_copy" "$zstd_target"
+              rm -f "$zstd_target"
+              cp -f "$zstd_copy" "$zstd_target"
             fi
             mv "$zstd_target" "$zstd_copy"
             chmod 755 "$zstd_copy"
@@ -72,7 +75,8 @@ case "$(uname -s)" in
       elif xcrun vtool -show-build "$exe" 2>/dev/null | grep -q 'LC_VERSION_MIN_MACOSX'; then
         xcrun vtool -set-version-min macos 11.0 11.0 -replace -output "$target" "$exe"
       else
-        cp "$exe" "$target"
+        rm -f "$target"
+        cp -f "$exe" "$target"
       fi
       mv "$target" "$exe"
       chmod 755 "$exe"
@@ -82,8 +86,10 @@ case "$(uname -s)" in
     fi
     ;;
 esac
-cp "$exe" "dist/mcclim/${exe##*/}"
+rm -f "dist/mcclim/${exe##*/}"
+cp -f "$exe" "dist/mcclim/${exe##*/}"
 if [ -f vendor/sdl2/SDL2.dll ]; then
-  cp vendor/sdl2/SDL2.dll dist/mcclim/SDL2.dll
+  rm -f dist/mcclim/SDL2.dll
+  cp -f vendor/sdl2/SDL2.dll dist/mcclim/SDL2.dll
 fi
 printf "ok    dist/mcclim\n"
