@@ -1,0 +1,25 @@
+(load (merge-pathnames "core.lisp" *default-pathname-defaults*))
+
+(defun check (name got want)
+  (if (equal got want)
+      (format t "  pass  ~a~%" name)
+      (format t "  FAIL  ~a~%    got:  ~s~%    want: ~s~%" name got want)))
+
+(let* ((b (make-buffer 0 0 0 (list (make-line '())))))
+  (check "empty buffer" (text b) (list ""))
+  (insert-char b #\H)
+  (check "insert H" (text b) (list "H"))
+  (insert-char b #\i)
+  (check "insert i" (text b) (list "Hi"))
+  (move b -1)
+  (check "move left one" (text b) (list "Hi"))
+  (delete-char b)
+  (check "delete before end" (text b) (list "H")))
+
+(let* ((b (make-buffer 0 0 0 (list (make-line '(#\H))))))
+  (move b -1)
+  (check "move left clamps at 0" (buffer-offset b) 0)
+  (move b 5)
+  (check "move right clamps at line end" (buffer-offset b) 1))
+
+(format t "~&")

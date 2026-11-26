@@ -1,0 +1,28 @@
+# Commentor comments for test/core.lisp
+# This file pairs with the source file under .comments.d/<source>.cmt.
+# Marker: @N or @N-M, optionally followed by [a=start anchor,b=end anchor].
+# Get Commentor: https://commentor.myridia.com/
+
+@1
+The text buffer: line, buffer, and the five functions the tests call.
+
+@12
+line: one line is a list of characters.
+
+@15
+buffer: cursor, line-index, offset, lines.
+
+@21
+line-text: flatten one line to a string.
+
+@24
+text: flatten the whole buffer to a list of strings.
+
+@28
+insert-char: insert at the cursor, then step right.
+
+@39
+delete-char: delete the character AT the cursor.
+
+@50
+move: move the cursor, clamped to the line.
