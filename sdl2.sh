@@ -41,6 +41,35 @@ else
   printf "ok    mcclim 1.0.0\n"
 fi
 
+if [ "$PLATFORM" = Darwin ]; then
+  if [ -x /opt/homebrew/bin/brew ]; then
+    brew_bin=/opt/homebrew/bin/brew
+  elif [ -x /usr/local/bin/brew ]; then
+    brew_bin=/usr/local/bin/brew
+  elif command -v brew >/dev/null 2>&1; then
+    brew_bin=brew
+  else
+    printf "FAIL brew not found; install Homebrew from https://brew.sh\n"
+    exit 1
+  fi
+  "$brew_bin" install sdl2 sdl3
+
+  sdl2_dir="$HOME_POSIX/quicklisp/local-projects/cl-sdl2"
+  spec="$sdl2_dir/src/spec/SDL2.aarch64-apple-darwin9.spec"
+  if [ -f "$spec" ]; then
+    printf "ok    cl-sdl2 aarch64 spec\n"
+  else
+    tmp_dir=$(mktemp -d)
+    fetch "https://github.com/lispgames/cl-sdl2/archive/f107198b1da0c3c1d749d3daa22bc85dd816e79b.tar.gz" "$tmp_dir/cl-sdl2.tar.gz"
+    rm -rf "$sdl2_dir"
+    mkdir -p "$sdl2_dir"
+    tar -xzf "$tmp_dir/cl-sdl2.tar.gz" --strip-components=1 -C "$sdl2_dir"
+    rm -rf "$tmp_dir"
+    [ -f "$spec" ] || { printf "FAIL  cl-sdl2 aarch64 spec missing\n" >&2; exit 1; }
+    printf "ok    cl-sdl2 aarch64 spec\n"
+  fi
+fi
+
 if [ "$WINDOWS" = no ]; then
   printf "ok    SDL2.dll skipped (use the host libsdl2)\n"
   exit 0

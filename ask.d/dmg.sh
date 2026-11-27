@@ -1,7 +1,7 @@
 #!/bin/sh
-# id: 4
+# id: 8
 # group: PACKAGE
-# desc: Package - build macOS .app and DMG
+# desc: Package - create macOS .app and DMG
 . "$(dirname "$0")/lib.sh"
 
 set -e
@@ -18,7 +18,7 @@ esac
 exe=${MCCLIM_DMG_SOURCE:-dist/mcclim/mcclim}
 [ -e "$exe.exe" ] && exe="$exe.exe"
 if [ -z "${MCCLIM_DMG_SOURCE:-}" ]; then
-  "$ROOT/ask.d/build.sh"
+  "$ROOT/ask.d/build-mac.sh"
 fi
 if [ ! -x "$exe" ]; then
   printf "FAIL  build first with task 2\n"
@@ -54,9 +54,9 @@ exec "$dir/mcclim" "$@"
 EOF
 exe_dir=${exe%/*}
 [ "$exe_dir" = "$exe" ] && exe_dir=.
-for zstd in "$exe_dir"/libzstd*.dylib; do
-  [ -f "$zstd" ] || continue
-  ditto "$zstd" "$app/Contents/MacOS/${zstd##*/}"
+for dylib in "$exe_dir"/*.dylib; do
+  [ -f "$dylib" ] || continue
+  ditto "$dylib" "$app/Contents/MacOS/${dylib##*/}"
 done
 printf 'APPL????' > "$app/Contents/PkgInfo"
 cat > "$app/Contents/Info.plist" <<EOF

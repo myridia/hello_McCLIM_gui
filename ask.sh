@@ -15,9 +15,15 @@ task_id() {
 group_rank() {
   case "$1" in
     SETUP) printf '1' ;;
-    RUN) printf '2' ;;
-    MAINTENANCE) printf '3' ;;
-    *) printf '4' ;;
+    BUILD\ MAC) printf '2' ;;
+    BUILD\ LINUX) printf '3' ;;
+    BUILD\ WINDOWS) printf '4' ;;
+    DEV\ TEST\ WINDOWS) printf '5' ;;
+    DEV\ TEST\ MAC) printf '6' ;;
+    DEV\ TEST\ LINUX) printf '7' ;;
+    PACKAGE) printf '8' ;;
+    MAINTENANCE) printf '9' ;;
+    *) printf '10' ;;
   esac
 }
 
@@ -25,8 +31,10 @@ list_tasks() {
   for f in "$TASKS_DIR"/*.sh; do
     [ -f "$f" ] || continue
     [ "${f##*/}" = "lib.sh" ] && continue
+    id=$(task_id "$f")
+    [ -n "$id" ] || continue
     group=$(task_meta "$f" group)
-    printf '%s|%s|%s|%s|%s\n' "$(group_rank "$group")" "$(task_id "$f")" "$group" "$(task_meta "$f" desc)" "$f"
+    printf '%s|%s|%s|%s|%s\n' "$(group_rank "$group")" "$id" "$group" "$(task_meta "$f" desc)" "$f"
   done | sort -t'|' -k1,1n -k2,2n
 }
 
