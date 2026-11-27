@@ -17,4 +17,4 @@ esac
 
 MCCLIM_BACKEND=${MCCLIM_BACKEND:-clx}
 export MCCLIM_BACKEND
-"$ROOT/ask.d/build.sh"
+sh "$ROOT/ask.d/build.sh"

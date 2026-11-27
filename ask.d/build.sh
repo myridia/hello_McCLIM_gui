@@ -4,7 +4,7 @@
 set -e
 enter
 
-"$ROOT/ask.d/clean.sh"
+sh "$ROOT/ask.d/clean.sh"
 mkdir -p bin dist/mcclim
 
 case "$(uname -s)" in

@@ -18,7 +18,7 @@ esac
 exe=${MCCLIM_DMG_SOURCE:-dist/mcclim/mcclim}
 [ -e "$exe.exe" ] && exe="$exe.exe"
 if [ -z "${MCCLIM_DMG_SOURCE:-}" ]; then
-  "$ROOT/ask.d/build-mac.sh"
+  sh "$ROOT/ask.d/build-mac.sh"
 fi
 if [ ! -x "$exe" ]; then
   printf "FAIL  build first with task 2\n"
