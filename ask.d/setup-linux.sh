@@ -1,5 +1,5 @@
 #!/bin/sh
-# id: 4
+# id: 5
 # group: LINUX
 # desc: Setup - Linux (CLX)
 . "$(dirname "$0")/lib.sh"

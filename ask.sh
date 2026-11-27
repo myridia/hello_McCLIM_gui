@@ -17,9 +17,8 @@ group_rank() {
     MAC) printf '1' ;;
     LINUX) printf '2' ;;
     WINDOWS) printf '3' ;;
-    PACKAGE) printf '4' ;;
-    MAINTENANCE) printf '5' ;;
-    *) printf '6' ;;
+    MAINTENANCE) printf '4' ;;
+    *) printf '5' ;;
   esac
 }
 

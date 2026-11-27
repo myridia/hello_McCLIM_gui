@@ -18,11 +18,11 @@ case "$platform:$(uname -s)" in
 esac
 
 if ! command -v sbcl >/dev/null 2>&1; then
-  printf "FAIL  sbcl missing; run task 1 first\n"
+  printf "FAIL  sbcl missing; run the matching setup task first\n"
   exit 1
 fi
 if [ ! -f "$HOME/quicklisp/setup.lisp" ]; then
-  printf "FAIL  quicklisp missing; run task 1 first\n"
+  printf "FAIL  quicklisp missing; run the matching setup task first\n"
   exit 1
 fi
 
