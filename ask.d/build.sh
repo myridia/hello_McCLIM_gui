@@ -4,6 +4,14 @@
 set -e
 enter
 
+fail() {
+  printf 'FAIL  %s\n' "$1" >&2
+  exit 1
+}
+
+setup_task=1
+dist_dir=dist/mcclim
+
 sh "$ROOT/ask.d/clean.sh"
 mkdir -p bin dist/mcclim
 
@@ -50,22 +58,78 @@ lower_macos_target() {
   fi
 }
 
-copy_mac_dylib() {
+brew_lib_path() {
   name=$1
   formula=$2
-  inspect=$3
-  [ -f "$inspect" ] || return 0
-  dep=$(otool -L "$inspect" 2>/dev/null | awk -v needle="$name" 'index($0, needle) { print $1; exit }')
-  [ -n "$dep" ] || return 0
-  prefix=$(brew --prefix "$formula" 2>/dev/null || true)
-  for src in "$prefix/lib/$name" "/usr/local/opt/$formula/lib/$name" "/opt/homebrew/opt/$formula/lib/$name"; do
-    [ -f "$src" ] || continue
-    dst="dist/mcclim/$name"
-    rm -f "$dst"
-    cp -f "$src" "$dst"
-    chmod 755 "$dst"
-    lower_macos_target "$dst"
-    break
+  formulas=$2
+  [ "$2" = sdl2 ] && formulas='sdl2 sdl2-compat'
+  for f in $formulas; do
+    prefix=$(brew --prefix "$f" 2>/dev/null || true)
+    for base in "$prefix" "/opt/homebrew/opt/$f" "/usr/local/opt/$f"; do
+      [ -n "$base" ] || continue
+      [ -f "$base/lib/$name" ] || continue
+      printf '%s\n' "$base/lib/$name"
+      return 0
+    done
+  done
+  return 1
+}
+
+prepare_mac_dylib() {
+  file=$1
+  name=$2
+  command -v install_name_tool >/dev/null 2>&1 || return 0
+  install_name_tool -id "@rpath/$name" "$file" >/dev/null 2>&1 || true
+  install_name_tool -add_rpath @loader_path "$file" >/dev/null 2>&1 || true
+}
+
+relocate_mac_dylib_dep() {
+  file=$1
+  needle=$2
+  command -v otool >/dev/null 2>&1 || return 0
+  command -v install_name_tool >/dev/null 2>&1 || return 0
+  old=$(otool -L "$file" 2>/dev/null | awk -v needle="$needle" 'index($0, needle) { print $1; exit }')
+  [ -n "$old" ] || return 0
+  case "$old" in
+    @rpath/*) return 0 ;;
+  esac
+  install_name_tool -change "$old" "@rpath/${old##*/}" "$file" >/dev/null 2>&1 || true
+}
+
+copy_dylib_file() {
+  src=$1
+  name=$2
+  dst="$dist_dir/$name"
+  rm -f "$dst"
+  cp -f "$src" "$dst"
+  chmod 755 "$dst"
+  prepare_mac_dylib "$dst" "$name"
+  lower_macos_target "$dst"
+}
+
+copy_brew_dylib() {
+  name=$1
+  formula=$2
+  src=$(brew_lib_path "$name" "$formula") || return 1
+  copy_dylib_file "$src" "$name"
+}
+
+copy_mac_sdl_dylibs() {
+  copy_brew_dylib libSDL2-2.0.0.dylib sdl2 || fail "libSDL2-2.0.0.dylib missing; run task $setup_task in ask.sh"
+  copy_brew_dylib libSDL2.dylib sdl2 || fail "libSDL2.dylib missing; run task $setup_task in ask.sh"
+
+  sdl2_file="$dist_dir/libSDL2-2.0.0.dylib"
+  sdl3_dep=$(otool -L "$sdl2_file" 2>/dev/null | awk '/libSDL3/ { n=$1; sub(".*/", "", n); print n; exit }')
+  [ -n "$sdl3_dep" ] || sdl3_dep=libSDL3.dylib
+  sdl3_src=$(brew_lib_path "$sdl3_dep" sdl3 || brew_lib_path libSDL3.dylib sdl3 || true)
+  [ -n "$sdl3_src" ] || fail "libSDL3.dylib missing; run task $setup_task in ask.sh"
+  sdl3_name=${sdl3_src##*/}
+  copy_dylib_file "$sdl3_src" "$sdl3_name"
+
+  for file in "$sdl2_file" "$dist_dir/libSDL2.dylib"; do
+    [ -f "$file" ] || continue
+    relocate_mac_dylib_dep "$file" libSDL3
+    lower_macos_target "$file"
   done
 }
 
