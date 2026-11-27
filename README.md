@@ -95,7 +95,7 @@ Use `/Applications/mcclim_macos.app` for Apple silicon. If macOS still prompts, 
 
 ## Build output
 
-Tasks 2-4 create `dist/mcclim/` with a ~22 MB SBCL executable (plus `SDL2.dll` on Windows, and `libzstd.1.dylib`, `libSDL2-2.0.0.dylib`, and `libSDL3.dylib` on macOS). McCLIM, the Lisp runtime, and `DejaVuSans.ttf` are saved into the image, so there is no `lib/` tree and no SBCL, Quicklisp, or system font install needed on the target machine. On each GUI run the embedded font is extracted to `~/.cache/mcclim/DejaVuSans.ttf`; all text styles use that one regular face. Every build task clears `dist/` first. CI instead sets `MCCLIM_DMG_SOURCE` to its prebuilt binary so task 8 does not rebuild it. Task 9 removes `dist/`, `bin/`, and the macOS `.app` bundles.
+Tasks 4-6 create `dist/mcclim/` with a ~22 MB SBCL executable (plus `SDL2.dll` on Windows, and `libzstd.1.dylib`, `libSDL2-2.0.0.dylib`, and `libSDL3.dylib` on macOS). McCLIM, the Lisp runtime, and `DejaVuSans.ttf` are saved into the image, so there is no `lib/` tree and no SBCL, Quicklisp, or system font install needed on the target machine. On each GUI run the embedded font is extracted to `~/.cache/mcclim/DejaVuSans.ttf`; all text styles use that one regular face. Every build task clears `dist/` first. CI instead sets `MCCLIM_DMG_SOURCE` to its prebuilt binary so task 10 does not rebuild it. Task 11 removes `dist/`, `bin/`, and the macOS `.app` bundles.
 
 | Project | Distribution | Size |
 |---------|--------------|------|
