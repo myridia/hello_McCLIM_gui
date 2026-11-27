@@ -1,7 +1,7 @@
 #!/bin/sh
 # id: 3
 # group: SETUP
-# desc: Setup - Windows
+# desc: Setup - Windows (SDL2)
 . "$(dirname "$0")/lib.sh"
 
 set -e

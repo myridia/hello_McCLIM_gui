@@ -1,7 +1,7 @@
 #!/bin/sh
 # id: 1
 # group: SETUP
-# desc: Setup - Linux
+# desc: Setup - Linux (CLX)
 . "$(dirname "$0")/lib.sh"
 
 set -e

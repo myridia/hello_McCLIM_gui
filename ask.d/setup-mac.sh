@@ -1,7 +1,7 @@
 #!/bin/sh
 # id: 2
 # group: SETUP
-# desc: Setup - macOS
+# desc: Setup - macOS (SDL2)
 . "$(dirname "$0")/lib.sh"
 
 set -e

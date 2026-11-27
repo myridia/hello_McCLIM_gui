@@ -21,6 +21,7 @@
           ((or (member :win32 *features*)
                (member :mingw32 *features*)
                (member :cygwin *features*)) :sdl2)
+          ((member :darwin *features*) :sdl2)
           (t :clx))))
 
 (ql:quickload :mcclim)

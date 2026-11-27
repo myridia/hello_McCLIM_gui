@@ -80,9 +80,9 @@ Use `/Applications/mcclim_macos.app` for Apple silicon. If macOS still prompts, 
 
 | ID | Task |
 |----|------|
-| 1 | Setup Linux - check/install SBCL, Quicklisp, and McCLIM |
-| 2 | Setup macOS - check/install SBCL, Quicklisp, SDL2, SDL3, and McCLIM |
-| 3 | Setup Windows - check/install SBCL, Quicklisp, SDL2.dll, and McCLIM |
+| 1 | Setup Linux (CLX) - check/install SBCL, Quicklisp, and McCLIM |
+| 2 | Setup macOS (SDL2) - check/install SBCL, Quicklisp, SDL2, SDL3, and McCLIM |
+| 3 | Setup Windows (SDL2) - check/install SBCL, Quicklisp, SDL2.dll, and McCLIM |
 | 4 | Build Linux - save a CLX executable |
 | 5 | Build macOS - save an SDL2 executable and bundle the SDL dylibs |
 | 6 | Build Windows - save an SDL2 executable |
