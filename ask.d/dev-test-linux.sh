@@ -1,6 +1,6 @@
 #!/bin/sh
-# id: 7
-# group: DEV TEST LINUX
+# id: 9
+# group: DEV TEST
 # desc: Dev test - Linux (CLX)
 . "$(dirname "$0")/lib.sh"
 

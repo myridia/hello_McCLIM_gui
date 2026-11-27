@@ -15,15 +15,13 @@ task_id() {
 group_rank() {
   case "$1" in
     SETUP) printf '1' ;;
-    BUILD\ MAC) printf '2' ;;
-    BUILD\ LINUX) printf '3' ;;
-    BUILD\ WINDOWS) printf '4' ;;
-    DEV\ TEST\ WINDOWS) printf '5' ;;
-    DEV\ TEST\ MAC) printf '6' ;;
-    DEV\ TEST\ LINUX) printf '7' ;;
-    PACKAGE) printf '8' ;;
-    MAINTENANCE) printf '9' ;;
-    *) printf '10' ;;
+    BUILD) printf '2' ;;
+    DEV\ TEST\ WINDOWS) printf '3' ;;
+    DEV\ TEST\ MAC) printf '4' ;;
+    DEV\ TEST\ LINUX) printf '5' ;;
+    PACKAGE) printf '6' ;;
+    MAINTENANCE) printf '7' ;;
+    *) printf '8' ;;
   esac
 }
 

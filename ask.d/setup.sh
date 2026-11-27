@@ -1,10 +1,19 @@
 #!/bin/sh
-# id: 1
-# group: SETUP
-# desc: Setup - check and install requirements
 . "$(dirname "$0")/lib.sh"
 
 enter
+
+expected=${MCCLIM_SETUP_PLATFORM:-}
+case "$expected:$(uname -s)" in
+  linux:Linux*) ;;
+  mac:Darwin*) ;;
+  windows:MINGW*|windows:MSYS*|windows:CYGWIN*) ;;
+  '') ;;
+  *)
+    printf "FAIL  setup %s does not match this platform\n" "$expected"
+    exit 1
+    ;;
+esac
 
 missing=0
 ql_setup="$HOME/quicklisp/setup.lisp"

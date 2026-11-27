@@ -1,5 +1,5 @@
 #!/bin/sh
-# id: 9
+# id: 11
 # group: MAINTENANCE
 # desc: Clean - remove dist, bin, and macOS bundles
 . "$(dirname "$0")/lib.sh"

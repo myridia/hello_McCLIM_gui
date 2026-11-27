@@ -1,5 +1,5 @@
 #!/bin/sh
-# id: 8
+# id: 10
 # group: PACKAGE
 # desc: Package - create macOS .app and DMG
 . "$(dirname "$0")/lib.sh"

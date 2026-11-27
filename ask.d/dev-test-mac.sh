@@ -1,6 +1,6 @@
 #!/bin/sh
-# id: 6
-# group: DEV TEST MAC
+# id: 8
+# group: DEV TEST
 # desc: Dev test - macOS (SDL2)
 . "$(dirname "$0")/lib.sh"
 

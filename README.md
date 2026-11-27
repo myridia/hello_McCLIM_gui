@@ -37,9 +37,9 @@ Keep `SDL2.dll` next to the raw executable (or on `PATH`) when using the zip; Wi
 
 Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dmg` for Intel Macs. Use the `.app` inside the DMG for GUI launches. The `.app` contains a small launcher that points `DYLD_LIBRARY_PATH` at its bundled `libzstd.1.dylib`, `libSDL2-2.0.0.dylib`, and `libSDL3.dylib`, and defaults `DISPLAY` to `:0` when no display is set. The standalone `mcclim_macos` / `mcclim_macos_intel` files are Unix executables: double-clicking one in Finder opens Terminal, which is expected. Keep the companion `.dylib` files beside a standalone executable and start it with `DYLD_LIBRARY_PATH="$(dirname ./mcclim_macos_intel)" ./mcclim_macos_intel`. Run them from a terminal only when you need the `-nw` output.
 
-The executables are built on newer macOS runners, but task 2 lowers their deployment target to macOS 11 Big Sur, the oldest version shared by Intel and Apple silicon Macs. CI verifies the value before packaging, and the `.app` plist declares the same minimum.
+The executables are built on newer macOS runners, but task 5 lowers their deployment target to macOS 11 Big Sur, the oldest version shared by Intel and Apple silicon Macs. CI verifies the value before packaging, and the `.app` plist declares the same minimum.
 
-To test the exact bundle and DMG locally on a Mac, run `./ask.sh` and select tasks 1, 2, and 8. Task 2 builds the SDL2 executable with `ask.d/build-mac.sh`; task 8 uses the same `ask.d/dmg.sh` script as both macOS workflows and writes `dist/mcclim/mcclim_macos_intel.dmg` on Intel and `dist/mcclim/mcclim_macos.dmg` on Apple silicon. The build steps and packaging script are now the same locally and in CI. The remaining difference is download quarantine: a file created locally has no quarantine attribute, while the same DMG downloaded from a release does.
+To test the exact bundle and DMG locally on a Mac, run `./ask.sh` and select tasks 2, 5, and 10. Task 5 builds the SDL2 executable with `ask.d/build-mac.sh`; task 10 uses the same `ask.d/dmg.sh` script as both macOS workflows and writes `dist/mcclim/mcclim_macos_intel.dmg` on Intel and `dist/mcclim/mcclim_macos.dmg` on Apple silicon. The build steps and packaging script are now the same locally and in CI. The remaining difference is download quarantine: a file created locally has no quarantine attribute, while the same DMG downloaded from a release does.
 
 1. Download the DMG for your Mac.
 2. Clear quarantine from the downloaded DMG **before mounting it**, then verify it:
@@ -80,15 +80,17 @@ Use `/Applications/mcclim_macos.app` for Apple silicon. If macOS still prompts, 
 
 | ID | Task |
 |----|------|
-| 1 | Setup - check and install requirements (SBCL, Quicklisp, McCLIM; Linux, macOS, Windows) |
-| 2 | Build macOS - save an SDL2 executable and bundle the SDL dylibs |
-| 3 | Build Linux - save a CLX executable |
-| 4 | Build Windows - save an SDL2 executable |
-| 5 | Dev test Windows - smoke test `-nw`, then open the SDL2 window |
-| 6 | Dev test macOS - smoke test `-nw`, then open the SDL2 window |
+| 1 | Setup Linux - check/install SBCL, Quicklisp, and McCLIM |
+| 2 | Setup macOS - check/install SBCL, Quicklisp, SDL2, SDL3, and McCLIM |
+| 3 | Setup Windows - check/install SBCL, Quicklisp, SDL2.dll, and McCLIM |
+| 4 | Build Linux - save a CLX executable |
+| 5 | Build macOS - save an SDL2 executable and bundle the SDL dylibs |
+| 6 | Build Windows - save an SDL2 executable |
 | 7 | Dev test Linux - smoke test `-nw`, then open the CLX window |
-| 8 | Package - create a macOS `.app` and DMG from task 2 |
-| 9 | Clean - remove `dist/`, `bin/`, and macOS `.app` bundles |
+| 8 | Dev test macOS - smoke test `-nw`, then open the SDL2 window |
+| 9 | Dev test Windows - smoke test `-nw`, then open the SDL2 window |
+| 10 | Package - create a macOS `.app` and DMG from task 5 |
+| 11 | Clean - remove `dist/`, `bin/`, and macOS `.app` bundles |
 | 0 | Exit |
 
 ## Build output

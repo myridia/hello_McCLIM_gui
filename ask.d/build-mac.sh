@@ -1,6 +1,6 @@
 #!/bin/sh
-# id: 2
-# group: BUILD MAC
+# id: 5
+# group: BUILD
 # desc: Build - macOS SDL2 executable
 . "$(dirname "$0")/lib.sh"
 

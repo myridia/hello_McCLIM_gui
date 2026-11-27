@@ -1,0 +1,11 @@
+#!/bin/sh
+# id: 2
+# group: SETUP
+# desc: Setup - macOS
+. "$(dirname "$0")/lib.sh"
+
+set -e
+MCCLIM_SETUP_PLATFORM=mac
+MCCLIM_BACKEND=${MCCLIM_BACKEND:-sdl2}
+export MCCLIM_SETUP_PLATFORM MCCLIM_BACKEND
+exec sh "$ROOT/ask.d/setup.sh"
