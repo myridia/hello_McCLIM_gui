@@ -37,4 +37,6 @@
 (defun cl-user::quit-sdl2-port ()
   (let ((port (clim:find-port)))
     (when (typep port 'mcclim-sdl2::sdl2-port)
-      (clim:destroy-port port))))
+      (clim:destroy-port port)))
+  (when (and (boundp 'sdl2::*main-thread-channel*) sdl2::*main-thread-channel*)
+    (sdl2:quit)))
