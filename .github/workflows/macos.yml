@@ -22,6 +22,8 @@ permissions:
 jobs:
   Build:
     runs-on: macos-latest
+    env:
+      MCCLIM_BACKEND: sdl2
 
     steps:
       - name: Install
@@ -36,7 +38,7 @@ jobs:
         run: |
           echo "Compile"
           sh ask.d/setup.sh
-          sh ask.d/build.sh
+          sh ask.d/build-mac.sh
 
       - name: Rename
         run: |
@@ -79,7 +81,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: 'dist/mcclim/{mcclim_macos,mcclim_macos.dmg,libzstd*.dylib}'
+          file: 'dist/mcclim/{mcclim_macos,mcclim_macos.dmg,libzstd*.dylib,libSDL*.dylib}'
           tag: ${{ steps.release.outputs.tag }}
           overwrite: true
           file_glob: true

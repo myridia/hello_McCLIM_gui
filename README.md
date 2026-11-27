@@ -15,10 +15,10 @@ sbcl --script main.lisp
 ## No-window mode
 
 ```sh
-./dist/mcclim/mcclim -nw
+./dist/mcclim/mcclim -- -nw
 ```
 
-`-nw`, `--nw`, and `--no-window` skip the GUI and print `Hello, world!` to the terminal.
+The `--` stops SBCL from parsing the flag as its own option. `-nw`, `--nw`, and `--no-window` skip the GUI and print `Hello, world!` to the terminal.
 Without a flag, the executable opens the McCLIM window.
 
 ## Windows: native window without X11
@@ -35,11 +35,11 @@ Keep `SDL2.dll` next to the raw executable (or on `PATH`) when using the zip; Wi
 
 ## macOS DMG
 
-Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dmg` for Intel Macs. Use the `.app` inside the DMG for GUI launches. The `.app` contains a small launcher that points `DYLD_LIBRARY_PATH` at its bundled `libzstd.1.dylib` and defaults `DISPLAY` to `:0` for XQuartz when no display is set. The standalone `mcclim_macos` / `mcclim_macos_intel` files are Unix executables: double-clicking one in Finder opens Terminal, which is expected. Keep `libzstd.1.dylib` beside a standalone executable and start it with `DYLD_LIBRARY_PATH="$(dirname ./mcclim_macos_intel)" ./mcclim_macos_intel`. Run them from a terminal only when you need the `-nw` output.
+Releases include `mcclim_macos.dmg` for Apple silicon and `mcclim_macos_intel.dmg` for Intel Macs. macOS builds use SDL2 and include a runtime shim that runs McCLIM's SDL2 event loop on the process main thread while the CLIM frame runs in a worker thread; closing the frame destroys the SDL port and closes cl-sdl2's main-thread channel so the process exits. Use the `.app` inside the DMG for GUI launches. The `.app` contains a small launcher that points `DYLD_LIBRARY_PATH` at its bundled `libzstd.1.dylib`, `libSDL2-2.0.0.dylib`, and `libSDL3.dylib`, and defaults `DISPLAY` to `:0` when no display is set. The standalone `mcclim_macos` / `mcclim_macos_intel` files are Unix executables: double-clicking one in Finder opens Terminal, which is expected. Keep the companion `.dylib` files beside a standalone executable and start it with `DYLD_LIBRARY_PATH="$(dirname ./mcclim_macos_intel)" ./mcclim_macos_intel`. Run them from a terminal only when you need the `-nw` output.
 
-The executables are built on newer macOS runners, but `ask.d/build.sh` lowers their deployment target to macOS 11 Big Sur, the oldest version shared by Intel and Apple silicon Macs. CI verifies the value before packaging, and the `.app` plist declares the same minimum.
+The executables are built on newer macOS runners, but task 2 lowers their deployment target to macOS 11 Big Sur, the oldest version shared by Intel and Apple silicon Macs. CI verifies the value before packaging, and the `.app` plist declares the same minimum.
 
-To test the exact bundle and DMG locally on a Mac, run `./ask.sh` and select tasks 1 and 4; task 4 runs task 2 first. Task 4 uses the same `ask.d/dmg.sh` script as both macOS workflows and writes `dist/mcclim/mcclim_macos_intel.dmg` on Intel and `dist/mcclim/mcclim_macos.dmg` on Apple silicon. The build steps and packaging script are now the same locally and in CI. The remaining difference is download quarantine: a file created locally has no quarantine attribute, while the same DMG downloaded from a release does.
+To test the exact bundle and DMG locally on a Mac, run `./ask.sh` and select tasks 1, 2, and 4. Task 2 builds the SDL2 executable with `ask.d/build-mac.sh`; task 4 uses the same `ask.d/dmg.sh` script as both macOS workflows and writes `dist/mcclim/mcclim_macos_intel.dmg` on Intel and `dist/mcclim/mcclim_macos.dmg` on Apple silicon. The build steps and packaging script are now the same locally and in CI. The remaining difference is download quarantine: a file created locally has no quarantine attribute, while the same DMG downloaded from a release does.
 
 1. Download the DMG for your Mac.
 2. Clear quarantine from the downloaded DMG **before mounting it**, then verify it:
@@ -78,18 +78,24 @@ Use `/Applications/mcclim_macos.app` for Apple silicon. If macOS still prompts, 
 ./ask.sh
 ```
 
-| ID | Task |
-|----|------|
-| 1 | Setup - check and install requirements (SBCL, Quicklisp, McCLIM; Linux, macOS, Windows) |
-| 2 | Build - clean first, then save a self-contained SBCL executable |
-| 3 | Run - `sbcl --script main.lisp` |
-| 4 | Package - build first, then create a macOS `.app` and DMG |
-| 5 | Clean - remove `dist/`, `bin/`, and macOS `.app` bundles |
-| 0 | Exit |
+| Section | ID | Task |
+|---------|----|------|
+| MAC | 1 | Setup macOS (SDL2) - check/install SBCL, Quicklisp, SDL2, SDL3, and McCLIM |
+| MAC | 2 | Build macOS - save an SDL2 executable and bundle the SDL dylibs |
+| MAC | 3 | Dev test macOS - smoke test `-nw`, then open the SDL2 window |
+| MAC | 4 | Package - create a macOS `.app` and DMG from task 2 |
+| LINUX | 5 | Setup Linux (CLX) - check/install SBCL, Quicklisp, and McCLIM |
+| LINUX | 6 | Build Linux - save a CLX executable |
+| LINUX | 7 | Dev test Linux - smoke test `-nw`, then open the CLX window |
+| WINDOWS | 8 | Setup Windows (SDL2) - check/install SBCL, Quicklisp, SDL2.dll, and McCLIM |
+| WINDOWS | 9 | Build Windows - save an SDL2 executable |
+| WINDOWS | 10 | Dev test Windows - smoke test `-nw`, then open the SDL2 window |
+| MAINTENANCE | 11 | Clean - remove `dist/`, `bin/`, and macOS `.app` bundles |
+|  | 0 | Exit |
 
 ## Build output
 
-Task 2 creates `dist/mcclim/` with a ~22 MB SBCL executable (plus `SDL2.dll` on Windows and `libzstd.1.dylib` on macOS). McCLIM, the Lisp runtime, and `DejaVuSans.ttf` are saved into the image, so there is no `lib/` tree and no SBCL, Quicklisp, or system font install needed on the target machine. On each GUI run the embedded font is extracted to `~/.cache/mcclim/DejaVuSans.ttf`; all text styles use that one regular face. Task 2 always runs task 5 first, and local task 4 runs task 2 before packaging. CI instead sets `MCCLIM_DMG_SOURCE` to its prebuilt binary so the packaging step does not delete it. Task 5 removes `dist/`, `bin/`, and the macOS `.app` bundles created by task 4.
+Tasks 2, 6, and 9 create `dist/mcclim/` with a ~22 MB SBCL executable (plus `SDL2.dll` on Windows, and `libzstd.1.dylib`, `libSDL2-2.0.0.dylib`, and `libSDL3.dylib` on macOS). McCLIM, the Lisp runtime, and `DejaVuSans.ttf` are saved into the image, so there is no `lib/` tree and no SBCL, Quicklisp, or system font install needed on the target machine. On each GUI run the embedded font is extracted to `~/.cache/mcclim/DejaVuSans.ttf`; all text styles use that one regular face. Every build task clears `dist/` first. CI instead sets `MCCLIM_DMG_SOURCE` to its prebuilt binary so task 4 does not rebuild it. Task 11 removes `dist/`, `bin/`, and the macOS `.app` bundles.
 
 | Project | Distribution | Size |
 |---------|--------------|------|
@@ -98,4 +104,4 @@ Task 2 creates `dist/mcclim/` with a ~22 MB SBCL executable (plus `SDL2.dll` on 
 
 Copy the executable to another machine with the same OS and CPU architecture and run it there; no companion font file is needed. On Windows, copy `SDL2.dll` with it. The Debian workflow also packages it as `mcclim_0.1.0-1_amd64.deb` via `make_deb/`.
 
-Task 1 installs SBCL when missing, bootstraps Quicklisp into `~/quicklisp`, and loads McCLIM through Quicklisp. On Windows, use a POSIX shell such as Git Bash/MSYS/Cygwin.
+The setup tasks install SBCL when missing, bootstrap Quicklisp into `~/quicklisp`, and load McCLIM through Quicklisp. On Windows, use a POSIX shell such as Git Bash/MSYS/Cygwin.

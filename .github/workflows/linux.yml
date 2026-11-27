@@ -55,7 +55,7 @@ jobs:
       - name: Test
         run: |
           echo "Test"          
-          ./dist/mcclim/mcclim -nw
+          ./dist/mcclim/mcclim -- -nw
 
       - name: Rename
         run: |

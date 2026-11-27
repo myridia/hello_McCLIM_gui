@@ -21,6 +21,7 @@
           ((or (member :win32 *features*)
                (member :mingw32 *features*)
                (member :cygwin *features*)) :sdl2)
+          ((member :darwin *features*) :sdl2)
           (t :clx))))
 
 (ql:quickload :mcclim)
@@ -108,6 +109,25 @@
   (attach-parent-console)
   (write-console-line "Hello, world!"))
 
+(defun start-frame ()
+  (use-bundled-font)
+  (unwind-protect
+       (run-frame-top-level (make-application-frame 'hello-frame))
+    #+(and sbcl darwin)
+    (when (eq cl-user::*backend* :sdl2)
+      (ignore-errors
+        (funcall (symbol-function (intern "QUIT-SDL2-PORT" "CL-USER")))))))
+
+(defun run-gui ()
+  #+(and sbcl darwin)
+  (if (eq cl-user::*backend* :sdl2)
+      (let ((thread (clim-sys:make-process (function start-frame)
+                                           :name "McCLIM Frame")))
+        (bt:join-thread thread))
+      (start-frame))
+  #-(and sbcl darwin)
+  (start-frame))
+
 (defun main ()
   (when (eq cl-user::*backend* :sdl2)
     (funcall (symbol-function (intern "RESET-SDL2-USER-EVENT-ID" "CL-USER"))))
@@ -116,8 +136,7 @@
       (progn
         #+win32
         (free-console)
-        (use-bundled-font)
-        (run-frame-top-level (make-application-frame 'hello-frame)))))
+        (run-gui))))
 
 (export 'main)
 
