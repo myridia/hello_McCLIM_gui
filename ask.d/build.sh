@@ -96,6 +96,15 @@ relocate_mac_dylib_dep() {
   install_name_tool -change "$old" "@rpath/${old##*/}" "$file" >/dev/null 2>&1 || true
 }
 
+clear_mac_rpaths() {
+  file=$1
+  command -v otool >/dev/null 2>&1 || return 0
+  command -v install_name_tool >/dev/null 2>&1 || return 0
+  for rp in $(otool -l "$file" 2>/dev/null | awk '/cmd LC_RPATH/ { found=1 } found && /path / { print $2; found=0 }'); do
+    install_name_tool -delete_rpath "$rp" "$file" >/dev/null 2>&1 || true
+  done
+}
+
 copy_dylib_file() {
   src=$1
   name=$2
@@ -103,6 +112,7 @@ copy_dylib_file() {
   rm -f "$dst"
   cp -f "$src" "$dst"
   chmod 755 "$dst"
+  clear_mac_rpaths "$dst"
   prepare_mac_dylib "$dst" "$name"
   lower_macos_target "$dst"
 }
@@ -115,18 +125,28 @@ copy_brew_dylib() {
 }
 
 copy_mac_sdl_dylibs() {
-  copy_brew_dylib libSDL2-2.0.0.dylib sdl2 || fail "libSDL2-2.0.0.dylib missing; run task $setup_task in ask.sh"
-  copy_brew_dylib libSDL2.dylib sdl2 || fail "libSDL2.dylib missing; run task $setup_task in ask.sh"
+  copied_sdl2=no
+  sdl2_file=
+  for name in libSDL2-2.0.0.dylib libSDL2-2.0.dylib libSDL2.dylib; do
+    if copy_brew_dylib "$name" sdl2; then
+      copied_sdl2=yes
+      [ -n "$sdl2_file" ] || sdl2_file="$dist_dir/$name"
+    fi
+  done
+  [ "$copied_sdl2" = yes ] || fail "SDL2 dylib missing; run task $setup_task in ask.sh"
+  [ -n "$sdl2_file" ] || sdl2_file="$dist_dir/libSDL2.dylib"
 
-  sdl2_file="$dist_dir/libSDL2-2.0.0.dylib"
   sdl3_dep=$(otool -L "$sdl2_file" 2>/dev/null | awk '/libSDL3/ { n=$1; sub(".*/", "", n); print n; exit }')
   [ -n "$sdl3_dep" ] || sdl3_dep=libSDL3.dylib
-  sdl3_src=$(brew_lib_path "$sdl3_dep" sdl3 || brew_lib_path libSDL3.dylib sdl3 || true)
-  [ -n "$sdl3_src" ] || fail "libSDL3.dylib missing; run task $setup_task in ask.sh"
-  sdl3_name=${sdl3_src##*/}
-  copy_dylib_file "$sdl3_src" "$sdl3_name"
+  copied_sdl3=no
+  for name in "$sdl3_dep" libSDL3.dylib libSDL3.0.dylib libSDL3.0.0.dylib; do
+    if copy_brew_dylib "$name" sdl3; then
+      copied_sdl3=yes
+    fi
+  done
+  [ "$copied_sdl3" = yes ] || fail "SDL3 dylib missing; run task $setup_task in ask.sh"
 
-  for file in "$sdl2_file" "$dist_dir/libSDL2.dylib"; do
+  for file in "$sdl2_file" "$dist_dir/libSDL2.dylib" "$dist_dir/libSDL2-2.0.dylib" "$dist_dir/libSDL2-2.0.0.dylib"; do
     [ -f "$file" ] || continue
     relocate_mac_dylib_dep "$file" libSDL3
     lower_macos_target "$file"
@@ -135,19 +155,26 @@ copy_mac_sdl_dylibs() {
 
 case "$(uname -s)" in
   Darwin*)
-    copy_mac_dylib libzstd.1.dylib zstd "$exe"
-    if [ "${MCCLIM_BACKEND:-}" = sdl2 ]; then
-      copy_mac_dylib libSDL2-2.0.0.dylib sdl2 "$exe"
-      copy_mac_dylib libSDL3.dylib sdl3 dist/mcclim/libSDL2-2.0.0.dylib
+    copy_brew_dylib libzstd.1.dylib zstd || fail "libzstd.1.dylib missing; run task $setup_task in ask.sh"
+    if command -v install_name_tool >/dev/null 2>&1; then
+      clear_mac_rpaths "$exe"
+      install_name_tool -add_rpath @executable_path "$exe" >/dev/null 2>&1 || true
+      relocate_mac_dylib_dep "$exe" libzstd
+      if [ "${MCCLIM_BACKEND:-}" = sdl2 ]; then
+        relocate_mac_dylib_dep "$exe" libSDL2
+      fi
     fi
     lower_macos_target "$exe"
     ;;
 esac
 
-rm -f "dist/mcclim/${exe##*/}"
-cp -f "$exe" "dist/mcclim/${exe##*/}"
+rm -f "$dist_dir/${exe##*/}"
+cp -f "$exe" "$dist_dir/${exe##*/}"
 if [ -f vendor/sdl2/SDL2.dll ]; then
-  rm -f dist/mcclim/SDL2.dll
-  cp -f vendor/sdl2/SDL2.dll dist/mcclim/SDL2.dll
+  rm -f "$dist_dir/SDL2.dll"
+  cp -f vendor/sdl2/SDL2.dll "$dist_dir/SDL2.dll"
 fi
-printf "ok    dist/mcclim\n"
+if [ "${MCCLIM_BACKEND:-}" = sdl2 ]; then
+  copy_mac_sdl_dylibs
+fi
+printf "ok    %s\n" "$dist_dir"
