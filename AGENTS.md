@@ -74,6 +74,7 @@ Release steps publish on every `control.yml` run: manual input wins, then a push
 
 ## Patterns
 - All macOS DMGs are built by `ask.d/dmg.sh`; local task 4 runs task 2 first, while workflows pass a prebuilt binary through `MCCLIM_DMG_SOURCE`. Every DMG contains the `.app` plus an `Applications` symlink to `/Applications` so Finder shows the drag-to-install target.
+- The macOS builder copies Homebrew SDL dylibs directly and rewrites them to `@rpath`; SDL is loaded at runtime, so it never appears in the saved executable's `otool -L` output.
 - The `.app` launches through `mcclim-launcher`, which sets `DYLD_LIBRARY_PATH` and defaults `DISPLAY` to `:0` only when no display is set; SSH X11 forwarding keeps precedence.
 
 ## Conventions
