@@ -109,6 +109,20 @@
   (attach-parent-console)
   (write-console-line "Hello, world!"))
 
+(defun start-frame ()
+  (use-bundled-font)
+  (run-frame-top-level (make-application-frame 'hello-frame)))
+
+(defun run-gui ()
+  #+(and sbcl darwin)
+  (if (eq cl-user::*backend* :sdl2)
+      (let ((thread (clim-sys:make-process (function start-frame)
+                                           :name "McCLIM Frame")))
+        (bt:join-thread thread))
+      (start-frame))
+  #-(and sbcl darwin)
+  (start-frame))
+
 (defun main ()
   (when (eq cl-user::*backend* :sdl2)
     (funcall (symbol-function (intern "RESET-SDL2-USER-EVENT-ID" "CL-USER"))))
@@ -117,8 +131,7 @@
       (progn
         #+win32
         (free-console)
-        (use-bundled-font)
-        (run-frame-top-level (make-application-frame 'hello-frame)))))
+        (run-gui))))
 
 (export 'main)
 
