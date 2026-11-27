@@ -1,6 +1,6 @@
 #!/bin/sh
-# id: 7
-# group: DEV TEST WINDOWS
+# id: 9
+# group: WINDOWS
 # desc: Dev test - Windows (SDL2)
 . "$(dirname "$0")/lib.sh"
 

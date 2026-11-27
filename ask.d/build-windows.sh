@@ -1,6 +1,6 @@
 #!/bin/sh
-# id: 6
-# group: BUILD
+# id: 8
+# group: WINDOWS
 # desc: Build - Windows SDL2 executable
 . "$(dirname "$0")/lib.sh"
 

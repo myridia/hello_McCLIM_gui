@@ -1,6 +1,6 @@
 #!/bin/sh
-# id: 4
-# group: BUILD
+# id: 5
+# group: LINUX
 # desc: Build - Linux CLX executable
 . "$(dirname "$0")/lib.sh"
 

@@ -14,14 +14,12 @@ task_id() {
 
 group_rank() {
   case "$1" in
-    SETUP) printf '1' ;;
-    BUILD) printf '2' ;;
-    DEV\ TEST\ WINDOWS) printf '3' ;;
-    DEV\ TEST\ MAC) printf '4' ;;
-    DEV\ TEST\ LINUX) printf '5' ;;
-    PACKAGE) printf '6' ;;
-    MAINTENANCE) printf '7' ;;
-    *) printf '8' ;;
+    MAC) printf '1' ;;
+    LINUX) printf '2' ;;
+    WINDOWS) printf '3' ;;
+    PACKAGE) printf '4' ;;
+    MAINTENANCE) printf '5' ;;
+    *) printf '6' ;;
   esac
 }
 
