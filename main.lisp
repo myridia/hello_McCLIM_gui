@@ -111,7 +111,12 @@
 
 (defun start-frame ()
   (use-bundled-font)
-  (run-frame-top-level (make-application-frame 'hello-frame)))
+  (unwind-protect
+       (run-frame-top-level (make-application-frame 'hello-frame))
+    #+(and sbcl darwin)
+    (when (eq cl-user::*backend* :sdl2)
+      (ignore-errors
+        (funcall (symbol-function (intern "QUIT-SDL2-PORT" "CL-USER")))))))
 
 (defun run-gui ()
   #+(and sbcl darwin)
